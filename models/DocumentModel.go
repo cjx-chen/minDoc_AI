@@ -117,6 +117,12 @@ func (item *Document) InsertOrUpdate(cols ...string) error {
 		return err
 	}
 
+	go func(documentId int) {
+		if err := RebuildAIKnowledgeChunksForDocument(documentId); err != nil {
+			logs.Error("error: rebuild ai knowledge chunks failed ->", documentId, err)
+		}
+	}(item.DocumentId)
+
 	return nil
 }
 
@@ -138,6 +144,7 @@ func (item *Document) RecursiveDocument(docId int) error {
 		// 删除文档的倒排索引
 		index := NewContentReverseIndex()
 		_ = index.DeleteByContentTypeAndContentId(1, docId)
+		_ = NewAIKnowledgeChunk().DeleteByDocumentId(docId)
 
 		o.Delete(doc)
 		NewDocumentHistory().Clear(doc.DocumentId)
@@ -156,6 +163,7 @@ func (item *Document) RecursiveDocument(docId int) error {
 			// 删除子文档的倒排索引
 			index := NewContentReverseIndex()
 			_ = index.DeleteByContentTypeAndContentId(1, id)
+			_ = NewAIKnowledgeChunk().DeleteByDocumentId(id)
 
 			o.QueryTable(item.TableNameWithPrefix()).Filter("document_id", id).Delete()
 			item.RecursiveDocument(id)
