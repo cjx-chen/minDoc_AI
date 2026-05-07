@@ -263,7 +263,9 @@ func init() {
 
 	web.Router("/search", &controllers.SearchController{}, "get:Index")
 	web.Router("/search-v2", &controllers.SearchController{}, "get:IndexV2")
+	web.Router("/ai", &controllers.AiController{}, "get:ChatPage")
 	web.Router("/api/search-v2", &controllers.SearchController{}, "get:SearchV2")
+	web.Router("/api/ai/chat", &controllers.AiController{}, "post:Ask")
 
 	web.Router("/tag/:key", &controllers.LabelController{}, "get:Index")
 	web.Router("/tags", &controllers.LabelController{}, "get:List")

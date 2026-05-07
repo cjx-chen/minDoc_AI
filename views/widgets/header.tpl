@@ -19,6 +19,9 @@
                     <li {{if eq .ControllerName "ItemsetsController"}}class="active"{{end}}>
                         <a href="{{urlfor "ItemsetsController.Index" }}" title={{i18n .Lang "common.project_space"}}>{{i18n .Lang "common.project_space"}}</a>
                     </li>
+                    <li {{if eq .ControllerName "AiController"}}class="active"{{end}}>
+                        <a href="{{urlfor "AiController.ChatPage"}}" title="AI问答">AI问答</a>
+                    </li>
                 </ul>
                 <div class="searchbar pull-left visible-lg-inline-block visible-md-inline-block">
                     <form class="form-inline" action="{{urlfor "SearchController.IndexV2"}}" method="get">
@@ -96,6 +99,7 @@
                     </ul>
                 </li>
                 {{else}}
+                <li><a href="{{urlfor "AiController.ChatPage"}}" title="AI问答">AI问答</a></li>
                 <li><a href="{{urlfor "AccountController.Login"}}" title={{i18n .Lang "common.login"}}>{{i18n .Lang "common.login"}}</a></li>
                 {{end}}
             </ul>

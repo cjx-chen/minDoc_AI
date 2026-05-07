@@ -252,3 +252,21 @@ default_lang="zh-cn"
 # MCP Server 功能
 enable_mcp_server="${MINDOC_ENABLE_MCP_SERVER||false}"
 mcp_api_key="${MINDOC_MCP_API_KEY||demo-mcp-api-key}"
+
+# AI 问答能力（基于文档知识库）
+enable_ai_chat="${MINDOC_ENABLE_AI_CHAT||false}"
+ai_api_key="${MINDOC_AI_API_KEY||}"
+ai_endpoint="${MINDOC_AI_ENDPOINT||https://api.openai.com/v1/chat/completions}"
+ai_model="${MINDOC_AI_MODEL||gpt-4o-mini}"
+ai_temperature="${MINDOC_AI_TEMPERATURE||0.3}"
+ai_max_tokens="${MINDOC_AI_MAX_TOKENS||1600}"
+ai_request_timeout="120"
+ai_context_top_n="${MINDOC_AI_CONTEXT_TOP_N||6}"
+ai_context_length="${MINDOC_AI_CONTEXT_LENGTH||1400}"
+ai_chunk_size="${MINDOC_AI_CHUNK_SIZE||900}"
+ai_chunk_overlap="${MINDOC_AI_CHUNK_OVERLAP||120}"
+ai_chunk_init_limit="${MINDOC_AI_CHUNK_INIT_LIMIT||300}"
+ai_chunk_scan_limit="${MINDOC_AI_CHUNK_SCAN_LIMIT||3000}"
+ai_system_prompt="你是一个只服务于 Mindoc 文档库的知识问答助手。请使用中文作答，并基于提供的知识库内容推理回答。"
+# Disable thinking mode for non-streaming DashScope-compatible requests
+ai_enable_thinking="false"
