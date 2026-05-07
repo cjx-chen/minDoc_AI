@@ -21,6 +21,7 @@ import (
 	"github.com/mindoc-org/mindoc/commands/daemon"
 	_ "github.com/mindoc-org/mindoc/routers"
 	"github.com/mindoc-org/mindoc/utils"
+	_ "modernc.org/sqlite"
 )
 
 func isViaDaemonUnix() bool {

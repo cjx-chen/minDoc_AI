@@ -78,7 +78,10 @@ func RegisterDataBase() {
 			_ = os.MkdirAll(dbPath, 0777)
 		}
 
-		err := orm.RegisterDataBase("default", "sqlite3", database)
+		if err := orm.RegisterDriver("sqlite", orm.DRSqlite); err != nil {
+			logs.Warn("注册 sqlite 驱动提示 ->", err)
+		}
+		err := orm.RegisterDataBase("default", "sqlite", database)
 
 		if err != nil {
 			logs.Error("注册默认数据库失败->", err)
