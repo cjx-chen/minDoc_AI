@@ -266,6 +266,9 @@ func init() {
 	web.Router("/ai", &controllers.AiController{}, "get:ChatPage")
 	web.Router("/api/search-v2", &controllers.SearchController{}, "get:SearchV2")
 	web.Router("/api/ai/chat", &controllers.AiController{}, "post:Ask")
+	web.Router("/api/ai/code-wiki/repos", &controllers.AiController{}, "get:CodeWikiRepos")
+	web.Router("/api/ai/code-wiki/repos/add", &controllers.AiController{}, "post:AddCodeWikiRepo")
+	web.Router("/openapi/markdown/import", &controllers.OpenAPIController{}, "post:ImportMarkdown")
 
 	web.Router("/tag/:key", &controllers.LabelController{}, "get:Index")
 	web.Router("/tags", &controllers.LabelController{}, "get:List")
