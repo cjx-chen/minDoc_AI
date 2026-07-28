@@ -94,6 +94,14 @@ func (c *AccountController) Prepare() {
 // Login 用户登录
 func (c *AccountController) Login() {
 	c.TplName = "account/login.tpl"
+	loginPasswordAESKey := web.AppConfig.DefaultString("http_login_password_aes_key", "")
+	loginPasswordAESKeyJSON, _ := json.Marshal(loginPasswordAESKey)
+	showLoginCaptcha := web.AppConfig.DefaultBool("show_login_captcha", false)
+	c.Data["HTTPLoginPasswordEncrypt"] = web.AppConfig.DefaultBool("http_login_password_encrypt", false) && loginPasswordAESKey != ""
+	c.Data["HTTPLoginPasswordAESKeyJS"] = template.JS(loginPasswordAESKeyJSON)
+	c.Data["ShowLoginCaptcha"] = showLoginCaptcha
+	c.Data["ShowForgotPassword"] = web.AppConfig.DefaultBool("show_forgot_password", false)
+	c.Data["ShowThirdPartyLogin"] = web.AppConfig.DefaultBool("show_third_party_login", false)
 
 	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
 		u := c.GetString("url")
@@ -124,7 +132,7 @@ func (c *AccountController) Login() {
 		isRemember := c.GetString("is_remember")
 
 		// 如果开启了验证码
-		if v, ok := c.Option["ENABLED_CAPTCHA"]; ok && strings.EqualFold(v, "true") {
+		if showLoginCaptcha {
 			v, ok := c.GetSession(conf.CaptchaSessionName).(string)
 			if !ok || !strings.EqualFold(v, captcha) {
 				c.JsonResult(6001, i18n.Tr(c.Lang, "message.captcha_wrong"))

@@ -46,7 +46,7 @@
                         </template>
                         <template v-else>
                             <div class="list-item" v-for="item in lists">
-                                <img :src="item.avatar" onerror="this.src='{{cdnimg "/static/images/middle.gif"}}'" class="img-circle" width="34" height="34">
+                                <img :src="item.avatar" onerror="this.src='{{cdnimg "/static/images/headimgurl.jpg"}}'" class="img-circle" width="34" height="34">
                                 <span>${item.account}</span>
                                 <span style="font-size: 12px;color: #484848" v-if="item.real_name != ''">[${item.real_name}]</span>
                                 <div class="operate">

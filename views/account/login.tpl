@@ -61,7 +61,7 @@
 <header class="navbar navbar-static-top smart-nav navbar-fixed-top manual-header" role="banner">
     <div class="container">
         <div class="navbar-header col-sm-12 col-md-6 col-lg-5">
-            <a href="{{.BaseUrl}}" class="navbar-brand">{{.SITE_NAME}}</a>
+            <a href="{{.BaseUrl}}" class="navbar-brand">知识管理</a>
         </div>
     </div>
 </header>
@@ -76,7 +76,7 @@
                         <div class="input-group-addon">
                             <i class="fa fa-user"></i>
                         </div>
-                        <input type="text" class="form-control" placeholder="{{i18n .Lang "common.email"}} / {{i18n .Lang "common.username"}}" name="account" id="account" autocomplete="off">
+                        <input type="text" class="form-control" placeholder="域用户" name="account" id="account" autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group">
@@ -84,11 +84,10 @@
                         <div class="input-group-addon">
                             <i class="fa fa-lock"></i>
                         </div>
-                        <input type="password" class="form-control" placeholder="{{i18n .Lang "common.password"}}" name="password" id="password" autocomplete="off">
+                        <input type="password" class="form-control" placeholder="域密码" name="password" id="password" autocomplete="off">
                     </div>
                 </div>
-                {{if .ENABLED_CAPTCHA }}
-                {{if ne .ENABLED_CAPTCHA "false"}}
+                {{if .ShowLoginCaptcha}}
                 <div class="form-group">
                     <div class="input-group" style="float: left;width: 195px;">
                         <div class="input-group-addon">
@@ -100,12 +99,13 @@
                     <div class="clearfix"></div>
                 </div>
                 {{end}}
-                {{end}}
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" name="is_remember" value="yes"> {{i18n .Lang "common.keep_login"}}
                     </label>
+                    {{if .ShowForgotPassword}}
                     <a href="{{urlfor "AccountController.FindPassword" }}" style="display: inline-block;float: right">{{i18n .Lang "common.forgot_password"}}</a>
+                    {{end}}
                 </div>
                 <div class="form-group">
                     <button type="button" id="btn-login" class="btn btn-success" style="width: 100%"  data-loading-text="{{i18n .Lang "message.logging_in"}}" autocomplete="off">{{i18n .Lang "common.login"}}</button>
@@ -117,6 +117,7 @@
                         </div>
                     {{end}}
                 {{end}}
+                {{if .ShowThirdPartyLogin}}
                 <div class="third-party">
                     <div class="line">
                         <span class="text">{{i18n .Lang "common.third_party_login"}}</span>
@@ -130,6 +131,7 @@
                         </div>
                     </div>
                 </div>
+                {{end}}
             </form>
         </div>
     </div>
@@ -139,9 +141,37 @@
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript"></script>
+{{if .HTTPLoginPasswordEncrypt}}
+<script src="{{cdnjs "/static/js/crypto-js.min.js"}}" type="text/javascript"></script>
+{{end}}
 
 <script type="text/javascript">
     $(document).ready(function () {
+        var loginPasswordEncrypt = {{if .HTTPLoginPasswordEncrypt}}true{{else}}false{{end}};
+        var loginPasswordAESKey = {{.HTTPLoginPasswordAESKeyJS}};
+
+        function buildLoginFormData() {
+            var dataForm = $("form").serializeArray();
+            if (!loginPasswordEncrypt) {
+                return dataForm;
+            }
+            if (!window.CryptoJS) {
+                layer.msg("登录加密组件未加载");
+                return null;
+            }
+            var options = {
+                mode: CryptoJS.mode.ECB,
+                padding: CryptoJS.pad.Pkcs7
+            };
+            var key = CryptoJS.enc.Utf8.parse(loginPasswordAESKey);
+            dataForm.forEach(function (item) {
+                if (item.name === "password") {
+                    item.value = CryptoJS.AES.encrypt(item.value, key, options).ciphertext.toString(CryptoJS.enc.Base64);
+                }
+            });
+            return dataForm;
+        }
+
         $("#account,#password,#code").on('focus', function () {
             $(this).tooltip('destroy').parents('.form-group').removeClass('has-error');
         });
@@ -187,9 +217,14 @@
                 $btn.button('reset');
                 return false;
             } else {
+                var dataForm = buildLoginFormData();
+                if (!dataForm) {
+                    $btn.button('reset');
+                    return false;
+                }
                 $.ajax({
                     url: "{{urlfor "AccountController.Login" "url" .url}}",
-                    data: $("form").serializeArray(),
+                    data: dataForm,
                     dataType: "json",
                     type: "POST",
                     success: function (res) {
