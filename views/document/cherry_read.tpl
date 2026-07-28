@@ -75,6 +75,9 @@
                 <div class="dropdown pull-left" style="margin-right: 10px;">
                     <a href="{{urlfor "HomeController.Index"}}" class="btn btn-default"><i class="fa fa-home" aria-hidden="true"></i> {{i18n .Lang "common.home"}}</a>
                 </div>
+                <div class="dropdown pull-left" style="margin-right: 10px;">
+                    <a href="javascript:void(0);" class="btn btn-success" id="article-ai-chat-button"><i class="fa fa-comments-o" aria-hidden="true"></i> AI&#38382;&#31572;</a>
+                </div>
                 {{if gt .Member.MemberId 0}}
                 {{if eq .Model.RoleId 0 1 2}}
                 <div class="dropdown pull-left" style="margin-right: 10px;">
@@ -119,9 +122,12 @@
                 <div class="tab-navg">
                     <span data-mode="view" class="navg-item active"><i class="fa fa-align-justify"></i><b class="text">{{i18n .Lang "doc.contents"}}</b></span>
                     <span data-mode="search" class="navg-item"><i class="fa fa-search"></i><b class="text">{{i18n .Lang "doc.search"}}</b></span>
-                    <span id="handlerMenuShow" style="float: right;display: inline-block;padding: 5px;cursor: pointer;">
-                        <i class="fa fa-angle-left" style="font-size: 20px;padding-right: 5px;"></i>
-                        <span class="pull-right" style="padding-top: 4px;">{{i18n .Lang "doc.expand"}}</span>
+                    <span id="handlerMenuShow" style="float: right;display: inline-flex;align-items: center;height: 30px;padding: 0 5px;cursor: pointer;">
+                        <i class="fa fa-angle-left" style="font-size: 20px;padding-right: 5px;line-height: 1;"></i>
+                        <span style="line-height: 1;">{{i18n .Lang "doc.expand"}}</span>
+                    </span>
+                    <span id="catalog-location-button" title="&#30446;&#24405;&#23450;&#20301;" style="float: right;display: inline-flex;align-items: center;justify-content: center;height: 30px;padding: 0 8px;cursor: pointer;color: #337ab7;">
+                        <i class="fa fa-crosshairs" style="font-size: 16px;line-height: 1;"></i>
                     </span>
                 </div>
                 <div class="tab-util">
@@ -308,7 +314,7 @@
 <script src="{{cdnjs "/static/js/jquery.highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/clipboard.min.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/prismjs/prismjs.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/kancloud.js" "version"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/kancloud.js" "version"}}&anchorfix=20260521toc" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/splitbar.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/custom-elements-builtin-0.6.5.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/x-frame-bypass-1.0.2.js"}}" type="text/javascript"></script>
@@ -367,5 +373,91 @@ $(function () {
 });
 </script>
 {{.Scripts}}
+<div class="modal fade" id="article-ai-chat-modal" tabindex="-1" role="dialog" aria-labelledby="article-ai-chat-title">
+    <div class="modal-dialog modal-lg" role="document" style="width: 86%; max-width: 1200px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="pull-right" id="article-ai-model-wrap" style="display:none;margin-right:34px;">
+                    <label for="article-ai-model-select" class="text-muted" style="font-weight:normal;margin-right:6px;">&#24403;&#21069;&#27169;&#22411;&#65306;</label>
+                    <select id="article-ai-model-select" class="form-control input-sm" style="display:inline-block;width:auto;min-width:180px;"></select>
+                    <label id="article-ai-embedding-wrap" class="text-muted" style="display:none;font-weight:normal;margin-left:12px;margin-bottom:0;">
+                        <input type="checkbox" id="article-ai-embedding-enabled"> &#21521;&#37327;&#26816;&#32034;
+                    </label>
+                </div>
+                <h4 class="modal-title" id="article-ai-chat-title">AI&#38382;&#31572;</h4>
+            </div>
+            <div class="modal-body" style="height: 76vh; padding: 18px;">
+                <iframe id="article-ai-chat-frame" data-src="{{urlfor "AiController.ChatPage"}}?embedded=1&book_id={{.Model.BookId}}" title="AI&#38382;&#31572;" style="width: 100%; height: 100%; border: 0; background: #fff;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        if ($("#article-ai-chat-button").length) {
+            function syncArticleAIModelSelector() {
+                var frame = document.getElementById("article-ai-chat-frame");
+                if (!frame || !frame.contentWindow || !frame.contentWindow.document) {
+                    return;
+                }
+                var $childSelect = $(frame.contentWindow.document).find("#ai-model-select");
+                var $modelWrap = $("#article-ai-model-wrap");
+                var $modelSelect = $("#article-ai-model-select");
+                var $childEmbedding = $(frame.contentWindow.document).find("#ai-embedding-enabled");
+                var $embeddingWrap = $("#article-ai-embedding-wrap");
+                var $embeddingCheckbox = $("#article-ai-embedding-enabled");
+                if (!$childSelect.length) {
+                    $modelWrap.hide();
+                    return;
+                }
+                $modelSelect.empty();
+                $childSelect.find("option").each(function () {
+                    $modelSelect.append($("<option>").attr("value", $(this).val()).text($(this).text()));
+                });
+                $modelSelect.val($childSelect.val());
+                if ($childEmbedding.length) {
+                    $embeddingCheckbox.prop("checked", $childEmbedding.prop("checked"));
+                    $embeddingCheckbox.prop("disabled", $childEmbedding.prop("disabled"));
+                    $embeddingWrap.show();
+                } else {
+                    $embeddingWrap.hide();
+                }
+                $modelWrap.show();
+            }
+            window.syncArticleAIModelSelector = syncArticleAIModelSelector;
+            $("#article-ai-chat-frame").on("load", syncArticleAIModelSelector);
+            $("#article-ai-model-select").on("change", function () {
+                var frame = document.getElementById("article-ai-chat-frame");
+                if (!frame || !frame.contentWindow || !frame.contentWindow.document) {
+                    return;
+                }
+                $(frame.contentWindow.document).find("#ai-model-select").val($(this).val()).trigger("change");
+                if (typeof frame.contentWindow.updateAIChatCodeWikiRepoField === "function") {
+                    frame.contentWindow.updateAIChatCodeWikiRepoField();
+                }
+                setTimeout(syncArticleAIModelSelector, 0);
+                setTimeout(syncArticleAIModelSelector, 600);
+                setTimeout(syncArticleAIModelSelector, 1500);
+            });
+            $("#article-ai-embedding-enabled").on("change", function () {
+                var frame = document.getElementById("article-ai-chat-frame");
+                if (!frame || !frame.contentWindow || !frame.contentWindow.document) {
+                    return;
+                }
+                $(frame.contentWindow.document).find("#ai-embedding-enabled").prop("checked", $(this).prop("checked")).trigger("change");
+            });
+            $("#article-ai-chat-button").on("click", function () {
+                var $frame = $("#article-ai-chat-frame");
+                if (!$frame.attr("src")) {
+                    $frame.attr("src", $frame.attr("data-src"));
+                } else {
+                    syncArticleAIModelSelector();
+                }
+                $("#article-ai-chat-modal").modal("show");
+            });
+        }
+    });
+</script>
 </body>
 </html>

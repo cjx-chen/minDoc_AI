@@ -148,6 +148,7 @@ function onDelComment($id) {
 // 重新渲染页面
 function renderPage($data) {
     $("#page-content").html($data.body);
+    ensureMarkdownTocAnchors();
     $("title").text($data.title);
     $("#article-title").text($data.doc_title);
     $("#article-info").text($data.doc_info);
@@ -155,6 +156,7 @@ function renderPage($data) {
     $("#doc_id").val($data.doc_id);
     updateEditLink($data.doc_id);
     checkMarkdownTocElement();
+    ensureMarkdownTocAnchors();
     if ($data.page) {
         loadComment($data.page, $data.doc_id);
     } else {
@@ -175,13 +177,208 @@ function updateEditLink($docid) {
     var $editLink = $("#editDocumentLink");
     var normalizedDocId = parseInt($docid, 10);
 
-    if ($editLink.length === 0 || !window.editURL || !normalizedDocId) {
+    if (!normalizedDocId) {
         return;
     }
 
     window.currentDocumentId = normalizedDocId;
+    if ($editLink.length === 0 || !window.editURL) {
+        return;
+    }
+
     var baseURL = window.editURL.replace(/\/+$/, '');
     $editLink.attr("href", baseURL + "/" + normalizedDocId);
+}
+
+function findCatalogNodeByDocumentId(instance, docId) {
+    var node = instance.get_node(String(docId));
+    if (node) {
+        return node;
+    }
+
+    var matchedNodeId = "";
+    $("#sidebar").find("a").each(function () {
+        var $link = $(this);
+        var href = $link.attr("href") || "";
+        var linkDocId = $link.attr("data-id") || "";
+        if (!linkDocId) {
+            var match = href.match(/\/([0-9]+)(?:[?#].*)?$/);
+            if (match) {
+                linkDocId = match[1];
+            }
+        }
+        if (String(linkDocId) === String(docId)) {
+            matchedNodeId = $link.closest("li").attr("id") || "";
+            return false;
+        }
+    });
+
+    return matchedNodeId ? instance.get_node(matchedNodeId) : null;
+}
+
+function locateCurrentCatalogNode() {
+    var instance = $("#sidebar").jstree(true);
+    var docId = window.currentDocumentId || $("#doc_id").val();
+    if (!instance || !docId || String(docId) === "0") {
+        return false;
+    }
+
+    $(".manual-tab .navg-item[data-mode='view']").trigger("click");
+
+    var node = findCatalogNodeByDocumentId(instance, docId);
+    if (!node) {
+        return false;
+    }
+
+    $.each((node.parents || []).slice().reverse(), function (_, parentId) {
+        if (parentId && parentId !== "#") {
+            instance.open_node(parentId);
+        }
+    });
+    instance.deselect_all(true);
+    instance.select_node(node, true);
+
+    var $node = $("#" + escapeCssSelector(node.id));
+    if ($node.length) {
+        if (!$("#catalog-location-style").length) {
+            $("head").append('<style id="catalog-location-style">#sidebar .jstree-clicked,#sidebar .jstree-clicked:hover,#sidebar li.catalog-location-flash > .jstree-anchor{background:#d9edf7!important;color:#245269!important;box-shadow:none!important;}#sidebar .jstree-wholerow-clicked,#sidebar .jstree-wholerow-clicked:hover,#sidebar li.catalog-location-flash > .jstree-wholerow{background:#d9edf7!important;}#sidebar .jstree-clicked *,#sidebar li.catalog-location-flash > .jstree-anchor *{color:#245269!important;}</style>');
+        }
+        var $container = $(".manual-catalog");
+        if (!$container.length) {
+            $container = $(".manual-left");
+        }
+        var targetTop = $container.scrollTop() + $node.position().top - Math.max(($container.height() - $node.outerHeight()) / 2, 0);
+        $container.stop(true).animate({ scrollTop: Math.max(targetTop, 0) }, 180);
+        $node.addClass("catalog-location-flash");
+        setTimeout(function () {
+            $node.removeClass("catalog-location-flash");
+        }, 1400);
+    }
+
+    return true;
+}
+
+function escapeCssSelector(value) {
+    return String(value).replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, "\\$1");
+}
+
+function escapeAttrSelector(value) {
+    return String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
+function findMarkdownAnchorTarget(hash) {
+    if (!hash || hash.charAt(0) !== "#") {
+        return $();
+    }
+    var raw = hash.substring(1);
+    var decoded = raw;
+    try {
+        decoded = decodeURIComponent(raw);
+    } catch (e) {
+        decoded = raw;
+    }
+
+    var candidates = [];
+    if (raw) {
+        candidates.push(raw);
+    }
+    if (decoded && decoded !== raw) {
+        candidates.push(decoded);
+    }
+
+    for (var i = 0; i < candidates.length; i++) {
+        var value = candidates[i];
+        var escaped = escapeCssSelector(value);
+        var $target = $("#" + escaped);
+        if ($target.length) {
+            return $target.first();
+        }
+        $target = $("[id='" + escapeAttrSelector(value) + "']");
+        if ($target.length) {
+            return $target.first();
+        }
+        $target = $("[name='" + escapeAttrSelector(value) + "']");
+        if ($target.length) {
+            return $target.first();
+        }
+        $target = $("a.reference-link[name='" + escapeAttrSelector(value) + "']");
+        if ($target.length) {
+            return $target.first();
+        }
+    }
+
+    return $();
+}
+
+function getMarkdownHeadingTitle($heading) {
+    var $clone = $heading.clone();
+    $clone.find(".header-link,.reference-link,.anchor").remove();
+    return $.trim($clone.text());
+}
+
+function ensureMarkdownTocAnchors() {
+    var headings = [];
+
+    $("#page-content").find("h1,h2,h3,h4,h5,h6").each(function (index) {
+        var $heading = $(this);
+        var title = getMarkdownHeadingTitle($heading);
+        var id = $heading.attr("id");
+
+        if (!id || id === "undefined") {
+            id = "mindoc-toc-heading-" + index;
+            $heading.attr("id", id);
+        }
+
+        if (title) {
+            var hasNamedAnchor = false;
+            $heading.find("a.reference-link").each(function () {
+                if ($(this).attr("name") === title) {
+                    hasNamedAnchor = true;
+                    return false;
+                }
+            });
+            if (!hasNamedAnchor) {
+                $heading.prepend($("<a>").attr("name", title).addClass("reference-link"));
+            }
+        }
+
+        headings.push({
+            id: id,
+            title: title
+        });
+    });
+
+    $("#page-content").find(".markdown-toc-list a, .toc a, .editormd-markdown-toc a").each(function (index) {
+        var $link = $(this);
+        var href = $link.attr("href");
+
+        if (href && href.charAt(0) === "#" && href !== "#undefined" && findMarkdownAnchorTarget(href).length) {
+            return;
+        }
+
+        if (headings[index] && headings[index].id) {
+            $link.attr("href", "#" + headings[index].id);
+        }
+    });
+}
+
+function scrollMarkdownAnchor(hash) {
+    var $target = findMarkdownAnchorTarget(hash);
+    if (!$target.length) {
+        return false;
+    }
+
+    var $container = $(".manual-right");
+    var windowTop = Math.max($target.offset().top - 70, 0);
+    $("html, body").stop(true).animate({ scrollTop: windowTop }, 180);
+    if ($container.length) {
+        var containerTop = $container.scrollTop() + $target.offset().top - $container.offset().top - 16;
+        $container.stop(true).animate({ scrollTop: containerTop }, 180);
+    }
+    if (history && history.replaceState) {
+        history.replaceState(history.state || {}, document.title, window.location.pathname + window.location.search + hash);
+    }
+    return true;
 }
 
 /***
@@ -293,6 +490,13 @@ $(function () {
     updateEditLink(window.currentDocumentId);
 
     checkMarkdownTocElement();
+    ensureMarkdownTocAnchors();
+    $(document).on("click", ".markdown-toc-list a, .toc a, #page-content a[href^='#']", function (event) {
+        var href = $(this).attr("href");
+        if (href && href.charAt(0) === "#" && scrollMarkdownAnchor(href)) {
+            event.preventDefault();
+        }
+    });
     $(".view-backtop").on("click", function () {
         $('.manual-right').animate({ scrollTop: '0px' }, 200);
     });
@@ -333,8 +537,12 @@ $(function () {
         } catch (e) {
             console.log(e);
         }
-    }).on("click", ".markdown-toc-list a", function () {
+    }).on("click", ".markdown-toc-list a, .toc a, #page-content a[href^='#']", function (event) {
         var $this = $(this);
+        var href = $this.attr("href");
+        if (href && href.charAt(0) === "#" && scrollMarkdownAnchor(href)) {
+            event.preventDefault();
+        }
         setTimeout(function () {
             $(".markdown-toc-list li").removeClass("directory-item-active");
             $this.parents("li").addClass("directory-item-active");
@@ -374,6 +582,11 @@ $(function () {
 
     $("#slidebar").on("click", function () {
         $(".m-manual").addClass('manual-mobile-show-left');
+    });
+    $("#catalog-location-button").on("click", function () {
+        if (!locateCurrentCatalogNode()) {
+            layer.msg("未找到当前文档目录位置");
+        }
     });
     $(".manual-mask").on("click", function () {
         $(".m-manual").removeClass('manual-mobile-show-left');
