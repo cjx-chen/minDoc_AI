@@ -34,6 +34,18 @@ type AIKnowledgeChunk struct {
 	ModifyTime time.Time `orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
 }
 
+type AIKnowledgeEmbedding struct {
+	ChunkId        int       `orm:"pk;column(chunk_id)" json:"chunk_id"`
+	DocumentId     int       `orm:"column(document_id);type(int);index" json:"document_id"`
+	BookId         int       `orm:"column(book_id);type(int);index" json:"book_id"`
+	ContentMd5     string    `orm:"column(content_md5);size(32);index" json:"content_md5"`
+	EmbeddingModel string    `orm:"column(embedding_model);size(128);index" json:"embedding_model"`
+	EmbeddingDim   int       `orm:"column(embedding_dim);type(int);default(0)" json:"embedding_dim"`
+	Embedding      string    `orm:"column(embedding);type(text)" json:"-"`
+	CreateTime     time.Time `orm:"column(create_time);type(datetime);auto_now_add" json:"create_time"`
+	ModifyTime     time.Time `orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
+}
+
 type aiChunkDraft struct {
 	Title   string
 	Content string
@@ -43,16 +55,66 @@ func NewAIKnowledgeChunk() *AIKnowledgeChunk {
 	return &AIKnowledgeChunk{}
 }
 
+func NewAIKnowledgeEmbedding() *AIKnowledgeEmbedding {
+	return &AIKnowledgeEmbedding{}
+}
+
 func (item *AIKnowledgeChunk) TableName() string {
 	return "ai_knowledge_chunks"
+}
+
+func (item *AIKnowledgeEmbedding) TableName() string {
+	return "ai_knowledge_embeddings"
 }
 
 func (item *AIKnowledgeChunk) TableEngine() string {
 	return "INNODB"
 }
 
+func (item *AIKnowledgeEmbedding) TableEngine() string {
+	return "INNODB"
+}
+
 func (item *AIKnowledgeChunk) TableNameWithPrefix() string {
 	return conf.GetDatabasePrefix() + item.TableName()
+}
+
+func (item *AIKnowledgeEmbedding) TableNameWithPrefix() string {
+	return conf.GetDatabasePrefix() + item.TableName()
+}
+
+func EnsureAIKnowledgeEmbeddingTable() error {
+	table := NewAIKnowledgeEmbedding().TableNameWithPrefix()
+	sql := "CREATE TABLE IF NOT EXISTS `" + table + "` (" +
+		"`chunk_id` int(11) NOT NULL," +
+		"`document_id` int(11) NOT NULL," +
+		"`book_id` int(11) NOT NULL," +
+		"`content_md5` char(32) NOT NULL DEFAULT ''," +
+		"`embedding_model` varchar(128) NOT NULL DEFAULT ''," +
+		"`embedding_dim` int(11) NOT NULL DEFAULT 0," +
+		"`embedding` longtext NOT NULL," +
+		"`create_time` datetime NOT NULL," +
+		"`modify_time` datetime NOT NULL," +
+		"PRIMARY KEY (`chunk_id`)," +
+		"KEY `idx_ai_embedding_document_id` (`document_id`)," +
+		"KEY `idx_ai_embedding_book_id` (`book_id`)," +
+		"KEY `idx_ai_embedding_content_md5` (`content_md5`)," +
+		"KEY `idx_ai_embedding_model` (`embedding_model`)" +
+		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci"
+	_, err := orm.NewOrm().Raw(sql).Exec()
+	return err
+}
+
+func (item *AIKnowledgeEmbedding) DeleteByDocumentId(documentId int) error {
+	if documentId <= 0 {
+		return ErrInvalidParameter
+	}
+	if err := EnsureAIKnowledgeEmbeddingTable(); err != nil {
+		return err
+	}
+	o := orm.NewOrm()
+	_, err := o.QueryTable(item.TableNameWithPrefix()).Filter("document_id", documentId).Delete()
+	return err
 }
 
 func (item *AIKnowledgeChunk) DeleteByDocumentId(documentId int) error {
@@ -67,6 +129,12 @@ func (item *AIKnowledgeChunk) DeleteByDocumentId(documentId int) error {
 func (item *AIKnowledgeChunk) BuildForDocument(doc *Document) error {
 	if doc == nil || doc.DocumentId <= 0 {
 		return ErrInvalidParameter
+	}
+
+	if web.AppConfig.DefaultBool("ai_embedding_enabled", false) {
+		if err := NewAIKnowledgeEmbedding().DeleteByDocumentId(doc.DocumentId); err != nil {
+			logs.Warn("delete ai knowledge embeddings failed ->", doc.DocumentId, err)
+		}
 	}
 
 	if err := item.DeleteByDocumentId(doc.DocumentId); err != nil {
@@ -128,7 +196,7 @@ func InitializeMissingAIKnowledgeChunks(limit int) error {
 	docTable := NewDocument().TableNameWithPrefix()
 	chunkTable := NewAIKnowledgeChunk().TableNameWithPrefix()
 
-	sql := "SELECT d.* FROM " + docTable + " d LEFT JOIN " + chunkTable + " c ON c.document_id = d.document_id WHERE c.chunk_id IS NULL AND (d.markdown <> '' OR d.release <> '' OR d.content <> '') ORDER BY d.modify_time DESC"
+	sql := "SELECT d.* FROM " + docTable + " d LEFT JOIN " + chunkTable + " c ON c.document_id = d.document_id AND c.chunk_index = 0 AND c.chunk_title LIKE '% / outline' WHERE c.chunk_id IS NULL AND d.is_open <> 2 AND (d.markdown <> '' OR d.release <> '' OR d.content <> '') ORDER BY d.modify_time DESC"
 	if limit > 0 {
 		sql += " LIMIT ?"
 	}
@@ -181,6 +249,7 @@ func splitDocumentIntoAIChunks(documentTitle, content string) []aiChunkDraft {
 	chunks := make([]aiChunkDraft, 0)
 	sectionTitle := strings.TrimSpace(documentTitle)
 	sectionLines := make([]string, 0)
+	outline := make([]string, 0)
 
 	flushSection := func() {
 		sectionText := strings.TrimSpace(strings.Join(sectionLines, "\n"))
@@ -206,6 +275,7 @@ func splitDocumentIntoAIChunks(documentTitle, content string) []aiChunkDraft {
 			} else {
 				sectionTitle = heading
 			}
+			outline = append(outline, sectionTitle)
 			continue
 		}
 		sectionLines = append(sectionLines, line)
@@ -220,7 +290,49 @@ func splitDocumentIntoAIChunks(documentTitle, content string) []aiChunkDraft {
 			})
 		}
 	}
+	chunks = append([]aiChunkDraft{buildOutlineChunk(documentTitle, outline, content, maxSize)}, chunks...)
 	return chunks
+}
+
+func buildOutlineChunk(documentTitle string, outline []string, content string, maxSize int) aiChunkDraft {
+	var b strings.Builder
+	title := strings.TrimSpace(documentTitle)
+	if title != "" {
+		b.WriteString(title)
+		b.WriteString("\n\n")
+	}
+	if len(outline) > 0 {
+		b.WriteString("Document outline:\n")
+		limit := len(outline)
+		if limit > 120 {
+			limit = 120
+		}
+		for _, item := range outline[:limit] {
+			item = strings.TrimSpace(item)
+			if item == "" {
+				continue
+			}
+			b.WriteString("- ")
+			b.WriteString(item)
+			b.WriteString("\n")
+		}
+		b.WriteString("\n")
+	}
+	intro := truncateForChunk(strings.TrimSpace(content), maxSize)
+	if intro != "" {
+		b.WriteString("Document excerpt:\n")
+		b.WriteString(intro)
+	}
+	outlineTitle := title
+	if outlineTitle != "" {
+		outlineTitle += " / outline"
+	} else {
+		outlineTitle = "outline"
+	}
+	return aiChunkDraft{
+		Title:   outlineTitle,
+		Content: strings.TrimSpace(b.String()),
+	}
 }
 
 func splitTextByParagraph(text string, maxSize, overlap int) []string {
@@ -280,6 +392,14 @@ func splitLongText(text string, maxSize, overlap int) []string {
 		}
 	}
 	return result
+}
+
+func truncateForChunk(text string, max int) string {
+	runes := []rune(strings.TrimSpace(text))
+	if max <= 0 || len(runes) <= max {
+		return string(runes)
+	}
+	return string(runes[:max])
 }
 
 func buildChunkContent(title, content string) string {
