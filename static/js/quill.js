@@ -1,3 +1,7 @@
+function getMinDocActiveEditormdLocale() {
+    var locales = window.editormdLocales || {};
+    return locales[window.lang] || (typeof lang !== "undefined" ? locales[lang] : null) || locales["zh-CN"] || locales.en || {};
+}
 $(function () {
     window.editormdLocales = {
         'zh-CN': {
@@ -337,7 +341,7 @@ $(function () {
                     "separator_before": false,
                     "separator_after": true,
                     "_disabled": false,
-                    "label": window.editormdLocales[window.lang].addDoc,//"添加文档",
+                    "label": getMinDocActiveEditormdLocale().addDoc,//"添加文档",
                     "icon": "fa fa-plus",
                     "action": function (data) {
 
@@ -351,7 +355,7 @@ $(function () {
                     "separator_before": false,
                     "separator_after": true,
                     "_disabled": false,
-                    "label": window.editormdLocales[window.lang].edit,
+                    "label": getMinDocActiveEditormdLocale().edit,
                     "icon": "fa fa-edit",
                     "action": function (data) {
                         var inst = $.jstree.reference(data.reference);
@@ -363,7 +367,7 @@ $(function () {
                     "separator_before": false,
                     "separator_after": true,
                     "_disabled": false,
-                    "label": window.editormdLocales[window.lang].delete,
+                    "label": getMinDocActiveEditormdLocale().delete,
                     "icon": "fa fa-trash-o",
                     "action": function (data) {
                         var inst = $.jstree.reference(data.reference);
@@ -380,7 +384,7 @@ $(function () {
 
     }).on('select_node.jstree', function (node, selected, event) {
         if(window.menu_save.hasClass('change')) {
-            if (confirm(window.editormdLocales[window.lang].contentUnsaved)) {
+            if (confirm(getMinDocActiveEditormdLocale().contentUnsaved)) {
                 saveDocument(false,function () {
                     loadDocument(selected);
                 });

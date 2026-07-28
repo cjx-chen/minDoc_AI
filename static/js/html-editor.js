@@ -1,3 +1,11 @@
+function getMinDocSafeLocale(locales) {
+    locales = locales || {};
+    return locales[window.lang] || (typeof lang !== "undefined" ? locales[lang] : null) || locales["zh-CN"] || locales.en || {};
+}
+function getMinDocActiveEditormdLocale() {
+    var locales = window.editormdLocales || {};
+    return locales[window.lang] || (typeof lang !== "undefined" ? locales[lang] : null) || locales["zh-CN"] || locales.en || {};
+}
 $(function () {
     window.addDocumentModalFormHtml = $(this).find("form").html();
     window.editor = new wangEditor('#htmlEditor');
@@ -208,7 +216,7 @@ $(function () {
         var version = "";
 
         if (!node) {
-            layer.msg(editormdLocales[lang].fetchDocFailed);
+            layer.msg(getMinDocActiveEditormdLocale().fetchDocFailed);
             return;
         }
         var doc_id = parseInt(node.id);
@@ -248,8 +256,8 @@ $(function () {
                         callback();
                     }
                 }else if(res.errcode === 6005){
-                    var confirmIndex = layer.confirm(editormdLocales[lang].overrideModified, {
-                        btn: [editormdLocales[lang].confirm, editormdLocales[lang].cancel] // 按钮
+                    var confirmIndex = layer.confirm(getMinDocActiveEditormdLocale().overrideModified, {
+                        btn: [getMinDocActiveEditormdLocale().confirm, getMinDocActiveEditormdLocale().cancel] // 按钮
                     }, function () {
                         layer.close(confirmIndex);
                         saveDocument(true,callback);
@@ -323,7 +331,7 @@ $(function () {
                     "separator_before": false,
                     "separator_after": true,
                     "_disabled": false,
-                    "label": window.editormdLocales[window.lang].addDoc,//"添加文档",
+                    "label": getMinDocActiveEditormdLocale().addDoc,//"添加文档",
                     "icon": "fa fa-plus",
                     "action": function (data) {
 
@@ -337,7 +345,7 @@ $(function () {
                     "separator_before": false,
                     "separator_after": true,
                     "_disabled": false,
-                    "label": window.editormdLocales[window.lang].edit,
+                    "label": getMinDocActiveEditormdLocale().edit,
                     "icon": "fa fa-edit",
                     "action": function (data) {
                         var inst = $.jstree.reference(data.reference);
@@ -349,7 +357,7 @@ $(function () {
                     "separator_before": false,
                     "separator_after": true,
                     "_disabled": false,
-                    "label": window.editormdLocales[window.lang].delete,
+                    "label": getMinDocActiveEditormdLocale().delete,
                     "icon": "fa fa-trash-o",
                     "action": function (data) {
                         var inst = $.jstree.reference(data.reference);
@@ -363,7 +371,7 @@ $(function () {
         window.treeCatalog = $(this).jstree();
     }).on('select_node.jstree', function (node, selected, event) {
         if(window.editor.menus.menuList.find((item) => item.key == 'save').$elem.hasClass('selected')) {
-             if (confirm(window.editormdLocales[window.lang].contentUnsaved)) {
+             if (confirm(getMinDocActiveEditormdLocale().contentUnsaved)) {
                 saveDocument(false,function () {
                     loadDocument(selected);
                 });
@@ -379,7 +387,7 @@ $(function () {
     window.releaseBook = function () {
         if(Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0){
             if(window.editor.menus.menuList.find((item) => item.key == 'save').$elem.hasClass('selected')) {
-                if(confirm(editormdLocales[lang].contentUnsaved)) {
+                if(confirm(getMinDocActiveEditormdLocale().contentUnsaved)) {
                     saveDocument();
                 }
             }
@@ -398,14 +406,14 @@ $(function () {
                 dataType: "json",
                 success: function (res) {
                     if (res.errcode === 0) {
-                        layer.msg(locales[lang].publishToQueue);
+                        layer.msg(getMinDocSafeLocale(locales).publishToQueue);
                     } else {
                         layer.msg(res.message);
                     }
                 }
             });
         }else{
-            layer.msg(editormdLocales[lang].noDocNeedPublish)
+            layer.msg(getMinDocActiveEditormdLocale().noDocNeedPublish)
         }
     };
 

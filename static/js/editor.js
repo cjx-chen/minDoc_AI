@@ -1,3 +1,7 @@
+function getMinDocSafeLocale(locales) {
+    locales = locales || {};
+    return locales[window.lang] || (typeof lang !== "undefined" ? locales[lang] : null) || locales["zh-CN"] || locales.en || {};
+}
 /**
  * Created by lifei6671 on 2017/4/29 0029.
  */
@@ -113,7 +117,7 @@ function jstree_save(node, parent) {
         success: function (res) {
             layer.close(index);
             if (res.errcode === 0) {
-                layer.msg(locales[lang].saveSortSucc);
+                layer.msg(getMinDocSafeLocale(locales).saveSortSucc);
             } else {
                 layer.msg(res.message);
             }
@@ -180,7 +184,7 @@ function openDeleteDocumentDialog($node) {
             confirmLeave: 'The content you entered has not been saved. Are you sure you want to leave this page?'
         }
     }
-    langs = locales[lang];
+    langs = getMinDocSafeLocale(locales);
     var index = layer.confirm(langs.confirmDeleteDoc, {
         btn: [langs.confirm, langs.cancel] //按钮
     }, function () {
@@ -286,7 +290,7 @@ function releaseBook() {
         dataType: "json",
         success: function (res) {
             if (res.errcode === 0) {
-                layer.msg(locales[lang].publishToQueue);
+                layer.msg(getMinDocSafeLocale(locales).publishToQueue);
             } else {
                 layer.msg(res.message);
             }
@@ -359,7 +363,7 @@ window.documentHistory = function () {
     }
     layer.open({
         type: 2,
-        title: locales[lang].hisVer,
+        title: getMinDocSafeLocale(locales).hisVer || "\u5386\u53f2\u7248\u672c",
         shadeClose: true,
         shade: 0.8,
         area: ['700px', '80%'],
@@ -414,7 +418,7 @@ function uploadImage($id, $callback) {
                             fileName += ".gif";
                             break;
                         default :
-                            layer.msg(locales[lang].unsupportType);
+                            layer.msg(getMinDocSafeLocale(locales).unsupportType);
                             return;
                     }
                     var form = new FormData();
@@ -436,7 +440,7 @@ function uploadImage($id, $callback) {
                         error: function () {
                             layer.close(layerIndex);
                             $callback('error');
-                            layer.msg(locales[lang].uploadFailed);
+                            layer.msg(getMinDocSafeLocale(locales).uploadFailed);
                         },
                         success: function (data) {
                             layer.close(layerIndex);
@@ -497,7 +501,7 @@ function uploadResource($id, $callback) {
                             fileName += ".webm";
                             break;
                         default :
-                            layer.msg(locales[lang].unsupportType);
+                            layer.msg(getMinDocSafeLocale(locales).unsupportType);
                             return;
                     }
                     var form = new FormData();
@@ -519,7 +523,7 @@ function uploadResource($id, $callback) {
                         error: function () {
                             layer.close(layerIndex);
                             $callback('error');
-                            layer.msg(locales[lang].uploadFailed);
+                            layer.msg(getMinDocSafeLocale(locales).uploadFailed);
                         },
                         success: function (data) {
                             layer.close(layerIndex);
@@ -588,7 +592,7 @@ $(function () {
         },
         watch: {
             lists: function ($lists) {
-                $("#attachInfo").text(" " + $lists.length + locales[lang].attachments)
+                $("#attachInfo").text(" " + $lists.length + getMinDocSafeLocale(locales).attachments)
             }
         }
     });
@@ -614,4 +618,3 @@ $(function () {
         }
     });
 });
-

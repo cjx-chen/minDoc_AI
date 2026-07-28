@@ -898,7 +898,7 @@ func (c *DocumentController) Content() {
 	}
 
 	bookId := 0
-	autoRelease := false
+	autoRelease := web.AppConfig.DefaultBool("document_auto_release_default", true)
 
 	// 如果是超级管理员，则忽略权限
 	if c.Member.IsAdministrator() {
@@ -909,7 +909,7 @@ func (c *DocumentController) Content() {
 		}
 
 		bookId = book.BookId
-		autoRelease = book.AutoRelease == 1
+		autoRelease = autoRelease || book.AutoRelease == 1
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
@@ -919,7 +919,7 @@ func (c *DocumentController) Content() {
 		}
 
 		bookId = bookResult.BookId
-		autoRelease = bookResult.AutoRelease
+		autoRelease = autoRelease || bookResult.AutoRelease
 	}
 
 	if docId <= 0 {

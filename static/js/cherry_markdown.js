@@ -1,4 +1,173 @@
+function getMinDocSafeLocale(locales) {
+    locales = locales || {};
+    return locales[window.lang] || (typeof lang !== "undefined" ? locales[lang] : null) || locales["zh-CN"] || locales.en || {};
+}
+function getMinDocActiveEditormdLocale() {
+    var locales = window.editormdLocales || {};
+    return locales[window.lang] || (typeof lang !== "undefined" ? locales[lang] : null) || locales["zh-CN"] || locales.en || {};
+}
 $(function () {
+
+    function getCodeMirrorPass(cm) {
+        var codeMirror = window.CodeMirror || (cm && cm.constructor);
+        return codeMirror && codeMirror.Pass;
+    }
+
+    function repeatSpaces(count) {
+        return new Array(Math.max(count, 0) + 1).join(" ");
+    }
+
+    function parseMarkdownTableCells(line) {
+        if (!line || line.indexOf("|") < 0) {
+            return null;
+        }
+
+        var text = $.trim(line);
+        if (!text) {
+            return null;
+        }
+        if (text.charAt(0) === "|") {
+            text = text.substring(1);
+        }
+        if (text.charAt(text.length - 1) === "|") {
+            text = text.substring(0, text.length - 1);
+        }
+
+        var cells = [];
+        var cell = "";
+        var escaped = false;
+        for (var i = 0; i < text.length; i++) {
+            var ch = text.charAt(i);
+            if (escaped) {
+                cell += ch;
+                escaped = false;
+                continue;
+            }
+            if (ch === "\\") {
+                cell += ch;
+                escaped = true;
+                continue;
+            }
+            if (ch === "|") {
+                cells.push(cell);
+                cell = "";
+                continue;
+            }
+            cell += ch;
+        }
+        cells.push(cell);
+
+        return cells.length >= 2 ? cells : null;
+    }
+
+    function isMarkdownTableSeparator(line) {
+        return /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(line || "");
+    }
+
+    function isMarkdownTableRow(cm, lineNo) {
+        var line = cm.getLine(lineNo);
+        var cells = parseMarkdownTableCells(line);
+        if (!cells) {
+            return false;
+        }
+
+        var text = $.trim(line);
+        if (text.charAt(0) === "|" || text.charAt(text.length - 1) === "|" || isMarkdownTableSeparator(line)) {
+            return true;
+        }
+
+        var prev = lineNo > cm.firstLine() ? cm.getLine(lineNo - 1) : "";
+        var next = lineNo < cm.lastLine() ? cm.getLine(lineNo + 1) : "";
+        return isMarkdownTableSeparator(prev) || isMarkdownTableSeparator(next);
+    }
+
+    function isInMarkdownFence(cm, lineNo) {
+        var fence = null;
+        for (var i = cm.firstLine(); i < lineNo; i++) {
+            var match = (cm.getLine(i) || "").match(/^\s*(```+|~~~+)/);
+            if (!match) {
+                continue;
+            }
+            var marker = match[1].charAt(0);
+            if (!fence) {
+                fence = marker;
+            } else if (fence === marker) {
+                fence = null;
+            }
+        }
+        return !!fence;
+    }
+
+    function collectMarkdownTableWidths(cm, lineNo, columnCount) {
+        var widths = [];
+        for (var i = 0; i < columnCount; i++) {
+            widths[i] = 1;
+        }
+
+        var start = lineNo;
+        var end = lineNo;
+        while (start > cm.firstLine() && isMarkdownTableRow(cm, start - 1)) {
+            start--;
+        }
+        while (end < cm.lastLine() && isMarkdownTableRow(cm, end + 1)) {
+            end++;
+        }
+
+        for (var lineIndex = start; lineIndex <= end; lineIndex++) {
+            var line = cm.getLine(lineIndex);
+            var cells = parseMarkdownTableCells(line);
+            if (!cells) {
+                continue;
+            }
+            for (var col = 0; col < columnCount; col++) {
+                var cellText = $.trim(cells[col] || "");
+                widths[col] = Math.max(widths[col], isMarkdownTableSeparator(line) ? 3 : cellText.length, 1);
+            }
+        }
+
+        return widths;
+    }
+
+    function buildEmptyMarkdownTableRow(indent, widths) {
+        var row = indent + "|";
+        for (var i = 0; i < widths.length; i++) {
+            row += "  |";
+        }
+        return row;
+    }
+
+    function insertMarkdownTableRow(cm) {
+        if (cm.getOption && cm.getOption("disableInput")) {
+            return false;
+        }
+
+        var ranges = cm.listSelections();
+        if (ranges.length !== 1 || !ranges[0].empty()) {
+            return false;
+        }
+
+        var pos = ranges[0].head;
+        if (isInMarkdownFence(cm, pos.line) || !isMarkdownTableRow(cm, pos.line)) {
+            return false;
+        }
+
+        var line = cm.getLine(pos.line);
+        var cells = parseMarkdownTableCells(line);
+        if (!cells) {
+            return false;
+        }
+
+        var indent = (line.match(/^\s*/) || [""])[0];
+        var widths = collectMarkdownTableWidths(cm, pos.line, cells.length);
+        var newRow = buildEmptyMarkdownTableRow(indent, widths);
+        var insertAt = {line: pos.line, ch: line.length};
+
+        cm.operation(function () {
+            cm.replaceRange("\n" + newRow, insertAt, null, "+input");
+            cm.setCursor({line: pos.line + 1, ch: indent.length + 2});
+        });
+        return true;
+    }
 
     window.editormdLocales = {
         'zh-CN': {
@@ -203,11 +372,7 @@ $(function () {
                 inlineMath: {
                     engine: 'MathJax', // katex或MathJax
                 },
-                emoji: {
-                    useUnicode: false,
-                    customResourceURL: 'https://github.githubassets.com/images/icons/emoji/unicode/${code}.png?v8',
-                    upperCase: true,
-                },
+                emoji: false,
                 // toc: {
                 //     tocStyle: 'nested'
                 // }
@@ -294,7 +459,20 @@ $(function () {
         //var markdownarea = document.getElementById("markdown_area").value
         var config = Object.assign({}, basicConfig);// { value: markdownarea });// { value: value });不显示获取的初始化值
         window.editor = new Cherry(config);
-        window.editor.getCodeMirror().on('change', (e, detail)=>{
+        var cherryCodeMirror = window.editor.getCodeMirror();
+        cherryCodeMirror.addKeyMap({
+            "Enter": function (cm) {
+                if (insertMarkdownTableRow(cm)) {
+                    return;
+                }
+                var pass = getCodeMirrorPass(cm);
+                if (pass) {
+                    return pass;
+                }
+                cm.execCommand("newlineAndIndent");
+            }
+        });
+        cherryCodeMirror.on('change', (e, detail)=>{
             resetEditorChanged(true);
         });
         openLastSelectedNode();
@@ -340,11 +518,11 @@ $(function () {
                 pushVueLists(res.data.attach);
                 setLastSelectNode($node);
             } else {
-                layer.msg(editormdLocales[lang].loadDocFailed);
+                layer.msg(getMinDocActiveEditormdLocale().loadDocFailed);
             }
         }).fail(function () {
             layer.close(index);
-            layer.msg(editormdLocales[lang].loadDocFailed);
+            layer.msg(getMinDocActiveEditormdLocale().loadDocFailed);
         });
     };
 
@@ -361,11 +539,11 @@ $(function () {
         var version = "";
 
         if (!node) {
-            layer.msg(editormdLocales[lang].fetchDocFailed);
+            layer.msg(getMinDocActiveEditormdLocale().fetchDocFailed);
             return;
         }
         if (node.a_attr && node.a_attr.disabled) {
-            layer.msg(editormdLocales[lang].cannotAddToEmptyNode);
+            layer.msg(getMinDocActiveEditormdLocale().cannotAddToEmptyNode);
             return;
         }
 
@@ -412,8 +590,8 @@ $(function () {
                     }
 
                 } else if (res.errcode === 6005) {
-                    var confirmIndex = layer.confirm(editormdLocales[lang].overrideModified, {
-                        btn: [editormdLocales[lang].confirm, editormdLocales[lang].cancel] // 按钮
+                    var confirmIndex = layer.confirm(getMinDocActiveEditormdLocale().overrideModified, {
+                        btn: [getMinDocActiveEditormdLocale().confirm, getMinDocActiveEditormdLocale().cancel] // 按钮
                     }, function () {
                         layer.close(confirmIndex);
                         saveDocument(true, callback);
@@ -423,7 +601,7 @@ $(function () {
                 }
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
-                layer.msg(window.editormdLocales[window.lang].serverExcept + errorThrown);
+                layer.msg(getMinDocActiveEditormdLocale().serverExcept + errorThrown);
             },
             complete: function () {
                 layer.close(index);
@@ -465,7 +643,7 @@ $(function () {
     function releaseDocument() {
         if (Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0) {
             if ($("#markdown-save").hasClass('change')) {
-                var confirm_result = confirm(editormdLocales[lang].contentUnsaved);
+                var confirm_result = confirm(getMinDocActiveEditormdLocale().contentUnsaved);
                 if (confirm_result) {
                     saveDocument(false, releaseBook);
                     return;
@@ -474,7 +652,7 @@ $(function () {
             releaseBook();
             return
         }
-        layer.msg(editormdLocales[lang].noDocNeedPublish)
+        layer.msg(getMinDocActiveEditormdLocale().noDocNeedPublish)
     }
 
 
@@ -510,7 +688,7 @@ $(function () {
         beforeSubmit: function () {
             var doc_name = $.trim($("#documentName").val());
             if (doc_name === "") {
-                return showError(editormdLocales[lang].contentsNameEmpty, "#add-error-message")
+                return showError(getMinDocActiveEditormdLocale().contentsNameEmpty, "#add-error-message")
             }
             $("#btnSaveDocument").button("loading");
             return true;
@@ -581,7 +759,7 @@ $(function () {
                     "separator_before": false,
                     "separator_after": true,
                     "_disabled": false,
-                    "label": window.editormdLocales[window.lang].addDoc,//"添加文档",
+                    "label": getMinDocActiveEditormdLocale().addDoc,//"添加文档",
                     "icon": "fa fa-plus",
                     "action": function (data) {
                         var inst = $.jstree.reference(data.reference),
@@ -594,7 +772,7 @@ $(function () {
                     "separator_before": false,
                     "separator_after": true,
                     "_disabled": false,
-                    "label": window.editormdLocales[window.lang].edit,
+                    "label": getMinDocActiveEditormdLocale().edit,
                     "icon": "fa fa-edit",
                     "action": function (data) {
                         var inst = $.jstree.reference(data.reference);
@@ -606,7 +784,7 @@ $(function () {
                     "separator_before": false,
                     "separator_after": true,
                     "_disabled": false,
-                    "label": window.editormdLocales[window.lang].delete,
+                    "label": getMinDocActiveEditormdLocale().delete,
                     "icon": "fa fa-trash-o",
                     "action": function (data) {
                         var inst = $.jstree.reference(data.reference);
@@ -624,7 +802,7 @@ $(function () {
     }).on('select_node.jstree', function (node, selected) {
 
         if ($("#markdown-save").hasClass('change')) {
-            if (confirm(window.editormdLocales[window.lang].contentUnsaved)) {
+            if (confirm(getMinDocActiveEditormdLocale().contentUnsaved)) {
                 saveDocument(false, function () {
                     loadDocument(selected);
                 });
@@ -693,7 +871,7 @@ function myFileUpload(file, callback) {
         
         error: function () {
             layer.close(layerIndex);
-            layer.msg(locales[lang].uploadFailed);
+            layer.msg(getMinDocSafeLocale(locales).uploadFailed);
         },
         success: function (data) {
             layer.close(layerIndex);
