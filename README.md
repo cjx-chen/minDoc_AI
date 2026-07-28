@@ -1,371 +1,627 @@
-# MinDoc 简介
+# MinDoc AI 知识管理系统
 
-[![Build Status](https://travis-ci.com/mindoc-org/mindoc.svg?branch=master)](https://travis-ci.com/mindoc-org/mindoc)
-[![Build status](https://ci.appveyor.com/api/projects/status/7680ia6mu29m12wx?svg=true)](https://ci.appveyor.com/project/mindoc-org/mindoc)
+MinDoc AI 是基于 MinDoc 改造的企业知识管理系统。它保留了 MinDoc 原有的项目空间、Markdown 文档管理、权限控制、文档阅读和编辑能力，并增加了面向企业内网知识库的 AI 问答能力。
 
-MinDoc 是一款针对IT团队开发的简单好用的文档管理系统。
+本文档主要说明工程部署流程和关键配置。详细功能介绍请查看 `MinDoc_AI_试用手册.md`。
 
-MinDoc 的前身是 [SmartWiki](https://github.com/lifei6671/SmartWiki) 文档系统。SmartWiki 是基于 PHP 框架 laravel 开发的一款文档管理系统。因 PHP 的部署对普通用户来说太复杂，所以改用 Golang 开发。可以方便用户部署和实用。
+## 1. 简要功能介绍
 
-开发缘起是公司IT部门需要一款简单实用的项目接口文档管理和分享的系统。其功能和界面源于 kancloud 。
+- 支持项目空间、文档目录、Markdown 文档编辑、阅读、发布。
+- 支持保存后默认自动发布，减少重复操作。
+- 支持 Markdown `[TOC]` 目录跳转和文章目录定位。
+- 支持顶部导航 AI 问答页面。
+- 支持文章页 AI 问答弹框。
+- 支持按当前用户可访问项目范围进行知识库检索。
+- 支持项目范围多选和模糊搜索。
+- 支持 Markdown 格式答案渲染和参考来源跳转。
+- 支持关键词检索、SQL 预过滤、FULLTEXT 检索和可选向量检索。
+- 支持普通聊天模型、`bocai-agent` 和 `code wiki` 模型切换。
+- 支持 OpenAPI 自动向指定项目路径导入 Markdown 文档。
 
-可以用来储存日常接口文档，数据库字典，手册说明等文档。内置项目管理，用户管理，权限管理等功能，能够满足大部分中小团队的文档管理需求。
+## 2. 部署包说明
 
-##### 演示站点&文档:
-- https://demo.mindoc.cn/docs/mindochelp
-- https://www.iminho.me/wiki/docs/mindoc/
-- https://doc.gsw945.com/docs/mindoc-docs/
+常用部署包：
 
----
+```text
+mindoc-ai-windows-amd64-package.tar.gz
+mindoc-ai-linux-amd64-package.tar.gz
+```
 
-### 开发&维护&使用 悉知
+解压后通常包含：
 
-- 感谢作者 [lifei6671](https://github.com/lifei6671) 创造了MinDoc，并持续维护了很久。
-- 作者因工作等原因，精力有限，无法花费足够的时间来持续维护mindoc，已于北京时间2021年3月23日将mindoc交给社区(github组织[mindoc-org](https://github.com/mindoc-org))维护，期待热心开发者加入[mindoc-org](https://github.com/mindoc-org)一起来维护MinDoc。
-- 遇到问题请提 [Issues](https://github.com/mindoc-org/mindoc/issues )，欢迎使用者和贡献者加入QQ群 `1051164153`
-<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=bHFR7P3Qp1nsSPbsTw4KN_ZpFLUAblIU&jump_from=webapi"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="MinDoc使用&amp;开发交流群" title="MinDoc使用&amp;开发交流群"></a>
-- 对开发感兴趣请关注 [Development](https://github.com/mindoc-org/mindoc/projects/1):
-  - [Todo List](https://github.com/mindoc-org/mindoc/projects/1#column-13554511)
-  - [Work in progress](https://github.com/mindoc-org/mindoc/projects/1#column-13554512)
-  - [Review in progress](https://github.com/mindoc-org/mindoc/projects/1#column-13554513)
-- Mindoc基于 [beeego](https://github.com/beego/beego) 开发，beego文档地址: https://github.com/beego/beego-doc/tree/main/docs/zh
-- :warning: **特别声明**:
-  - 原作者 [lifei6671](https://github.com/lifei6671) 已于 2021-08-06 删除了个人捐赠信息，参见: [1a179179c1fe4d0d4db95e0b757d863aee5bf395](https://github.com/mindoc-org/mindoc/commit/1a179179c1fe4d0d4db95e0b757d863aee5bf395)
-  - 截止目前(2023-03-27)，[mindoc-org](https://github.com/mindoc-org) 暂未发布任何捐赠信息，请勿轻信
+```text
+.
+├── mindoc-ai-windows-amd64.exe       # Windows 可执行文件
+├── mindoc-ai-linux-amd64             # Linux AMD64 可执行文件
+├── conf/
+│   ├── app.conf                      # 实际运行配置
+│   ├── app.conf.example              # 配置模板
+│   └── lang/                         # 多语言配置
+├── static/                           # 前端静态资源
+├── views/                            # 页面模板
+├── lib/                              # 运行依赖资源
+├── deploy_mysql_ai_schema.sql        # AI 知识库相关数据库脚本
+├── MinDoc_AI_试用手册.md              # 详细功能试用手册
+└── README.md                         # 部署说明
+```
 
----
+注意：部署时需要保证 `conf/`、`static/`、`views/`、`lib/` 与可执行文件在同一部署目录下。
 
-# 安装与使用
+## 3. 部署前准备
 
-~~如果你的服务器上没有安装golang程序请手动设置一个环境变量如下：键名为 ZONEINFO，值为MinDoc跟目录下的/lib/time/zoneinfo.zip 。~~
+### 3.1 服务器要求
 
-更多信息请查看手册： [MinDoc 使用手册](https://demo.mindoc.cn/docs/mindochelp/mindoc-summary)
+Windows：
 
-对于没有Golang使用经验的用户，可以从 [https://github.com/mindoc-org/mindoc/releases](https://github.com/mindoc-org/mindoc/releases) 这里下载编译完的程序。
+- Windows 10 / Windows Server 及以上版本。
+- 能访问 MySQL。
+- 能访问内网大模型服务或外部模型服务。
 
-如果有Golang开发经验，建议通过编译安装，要求golang版本不小于1.23.0(需支持`CGO`、`go mod`和`import _ "time/tzdata"`)(推荐Go版本为1.23.x)。
-> 注意: CentOS7上GLibC版本低，常规编译版本不能使用。需要自行源码编译,或使用使用musl编译版本。
+Linux AMD64：
 
-## 常规编译
+- x86_64 / amd64 架构。
+- 推荐 Linux 内核 3.10 及以上。
+- 能访问 MySQL。
+- 能访问内网大模型服务或外部模型服务。
+
+### 3.2 数据库要求
+
+当前部署建议使用 MySQL。
+
+准备一个数据库，例如：
+
+```sql
+CREATE DATABASE mindoc DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+```
+
+如果是已有 MinDoc 数据库，请先备份后再升级。
+
+### 3.3 网络要求
+
+请确保应用服务器可以访问：
+
+- MySQL 数据库地址。
+- 普通聊天模型接口。
+- embedding 向量模型接口。
+- agent 接口。
+- Code Wiki 接口。
+- HTTP 登录认证接口。
+
+其中 embedding、agent、Code Wiki 为可选能力，未使用时可以不配置。
+
+## 4. 数据库初始化和升级
+
+### 4.1 全新部署
+
+全新部署时，需要先准备 MinDoc 基础数据库表。基础表初始化方式请按现有 MinDoc 部署方式执行。
+
+AI 知识库相关表和索引可执行：
+
 ```bash
-# 克隆源码
-git clone https://github.com/mindoc-org/mindoc.git
-# go包安装
-go mod tidy -v
-# 编译(sqlite需要CGO支持)
-go build -ldflags "-w" -o mindoc main.go
-# 数据库初始化(此步骤执行之前，需配置`conf/app.conf`)
-./mindoc install
-# 执行
-./mindoc
-# 开发阶段运行
-bee run
+mysql -h127.0.0.1 -P3306 -uroot -p mindoc < deploy_mysql_ai_schema.sql
 ```
 
-## 旧版本运行 可更新部分数据库配置
-```base
-./mindoc update
-```
+### 4.2 已有 MinDoc 升级
 
-MinDoc 如果使用MySQL储存数据，则编码必须是`utf8mb4_general_ci`。请在安装前，把数据库配置填充到项目目录下的 `conf/app.conf` 中。
+已有系统升级前建议：
 
-如果使用 `SQLite` 数据库，则直接在配置文件中配置数据库路径即可.
+1. 停止旧服务。
+2. 备份数据库。
+3. 备份原部署目录。
+4. 使用新包替换可执行文件、`static/`、`views/`、`conf/lang/` 等资源。
+5. 合并 `conf/app.conf.example` 中新增配置到原 `conf/app.conf`。
+6. 执行 `deploy_mysql_ai_schema.sql` 补充 AI 相关表和索引。
+7. 启动新服务。
 
-如果conf目录下不存在 `app.conf` 请重命名 `app.conf.example` 为 `app.conf`。
+备份示例：
 
-**默认程序会自动初始化一个超级管理员用户：admin 密码：123456 。请登录后重新设置密码。**
-
-## Linux系统中不依赖gLibC的编译方式
-
-### 安装 musl-gcc
 ```bash
-# 手动安装
-wget -c http://musl.libc.org/releases/musl-1.2.2.tar.gz
-tar -xvf musl-1.2.2.tar.gz
-cd musl-1.2.2
-./configure
-make
-sudo make install
-# apt 安装
-sudo apt install musl-tools
+mysqldump -h127.0.0.1 -P3306 -uroot -p mindoc > mindoc_backup.sql
 ```
 
+## 5. 配置文件
 
-### 使用 musl-gcc 编译 mindoc
+主配置文件：
+
+```text
+conf/app.conf
+```
+
+如部署目录中没有 `conf/app.conf`，可复制：
+
 ```bash
-go mod tidy -v
-export GOARCH=amd64
-export GOOS=linux
-# 设置使用musl-gcc
-export CC=/usr/local/musl/bin/musl-gcc
-# 设置版本
-export TRAVIS_TAG=temp-musl-v`date +%y%m%d`
-go build -v -o mindoc_linux_musl_amd64 -ldflags="-linkmode external -extldflags '-static' -w -X 'github.com/mindoc-org/mindoc/conf.VERSION=$TRAVIS_TAG' -X 'github.com/mindoc-org/mindoc/conf.BUILD_TIME=`date`' -X 'github.com/mindoc-org/mindoc/conf.GO_VERSION=`go version`'"
-# 验证
-./mindoc_linux_musl_amd64 version
+cp conf/app.conf.example conf/app.conf
 ```
 
-## Windows 上后台运行
- 使用 [mindoc-daemon](https://github.com/mindoc-org/mindoc-daemon)
+Windows 可直接复制并重命名。
 
+## 6. 基础服务配置
+
+### 6.1 监听地址和端口
 
 ```ini
-#邮件配置-示例
-#是否启用邮件
-enable_mail=true
-#smtp服务器的账号
-smtp_user_name=admin@iminho.me
-#smtp服务器的地址
-smtp_host=smtp.ym.163.com
-#密码
-smtp_password=1q2w3e__ABC
-#端口号
-smtp_port=25
-#邮件发送人的地址
-form_user_name=admin@iminho.me
-#邮件有效期30分钟
-mail_expired=30
+httpaddr=0.0.0.0
+httpport=8181
+baseurl=http://127.0.0.1:8181
 ```
 
-
-# 使用Docker部署
-如果是Docker用户，可参考项目内置的Dockerfile文件自行编译镜像(编译命令见Dockerfile文件底部注释，仅供参考)。
-
-在启动镜像时需要提供如下的常用环境变量(全部支持的环境变量请参考: [`conf/app.conf.example`](https://github.com/mindoc-org/mindoc/blob/master/conf/app.conf.example))：
-```ini
-DB_ADAPTER                  指定DB类型(默认为sqlite)
-MYSQL_PORT_3306_TCP_ADDR    MySQL地址
-MYSQL_PORT_3306_TCP_PORT    MySQL端口号
-MYSQL_INSTANCE_NAME         MySQL数据库名称
-MYSQL_USERNAME              MySQL账号
-MYSQL_PASSWORD              MySQL密码
-HTTP_PORT                   程序监听的端口号
-MINDOC_ENABLE_EXPORT        开启导出(默认为false)
-```
-
-#### 举个栗子-当前(公开)镜像(信息页面: https://cr.console.aliyun.com/images/cn-hangzhou/mindoc-org/mindoc/detail , 需要登录阿里云账号才可访问列表)
-##### Windows
-```bash
-set MINDOC=//d/mindoc
-docker run -it --name=mindoc --restart=always -v "%MINDOC%/conf":"/mindoc/conf" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.2-beta.2
-```
-
-##### Linux、Mac
-```bash
-export MINDOC=/home/ubuntu/mindoc-docker
-docker run -it --name=mindoc --restart=always -v "${MINDOC}/conf":"/mindoc/conf" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.2-beta.2
-```
-
-##### 举个栗子-更多环境变量示例(镜像已过期，仅供参考，请以当前镜像为准)
-```bash
-docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP_ADDR=10.xxx.xxx.xxx -e MYSQL_PORT_3306_TCP_PORT=3306 -e MYSQL_INSTANCE_NAME=mindoc -e MYSQL_USERNAME=root -e MYSQL_PASSWORD=123456 -e httpport=8181 -d daocloud.io/lifei6671/mindoc:latest
-```
-
-#### dockerfile内容参考
-- [无需代理直接加速各种 GitHub 资源拉取 | 国内镜像赋能 | 助力开发](https://blog.frytea.com/archives/504/)
-- [阿里云 - Ubuntu 镜像](https://developer.aliyun.com/mirror/ubuntu)
-
-### docker-compose 一键安装
-
-1. 修改配置文件
-    修改`docker-compose.yml`中的配置信息，主要修改`volumes`节点，将宿主机的两个目录映射到容器内。
-    `environment`节点，配置自己的环境变量。
-    
-2. 一键完成所有环境搭建
-    
-    > docker-compose up -d
-3. 浏览器访问
-    > http://localhost:8181/
-
-    整个部署完成了
-4. 常用命令参考
-   - 启动
-        
-        > docker-compose up -d
-   - 停止
-        
-        > docker-compose stop
-   - 重启
-        
-        > docker-compose restart
-   - 停止删除容器，释放所有资源
-        
-        > docker-compose down
-   - 删除并重新创建
-        > docker-compose -f docker-compose.yml down && docker-compose up -d
-        > 
-        > 更多 docker-compose 的使用相关的内容 请查看官网文档或百度
-   
-#### MCP服务器对接指导
-1. 请在配置文件中启用MCP服务器功能
-在配置文件`app.conf`中添加或修改为如下内容：
-```
-# MCP Server 功能
-enable_mcp_server="${MINDOC_ENABLE_MCP_SERVER||true}"
-mcp_api_key="${MINDOC_MCP_API_KEY||demo-mcp-api-key}"
-```
 说明：
-`enable_mcp_server`为是否启用MCP服务器功能，默认为true。
-`mcp_api_key` 为MCP服务器的API密钥，示例配置中默认为`demo-mcp-api-key`，可根据需求自行修改。
 
-2. 在Dify等AI应用或其他可调用MCP服务器的项目配置中添加如下Mindoc配置
+- `httpaddr=0.0.0.0` 表示允许其他机器访问。
+- `httpport` 是应用端口。
+- `baseurl` 建议配置为用户实际访问地址。
+
+内网示例：
+
+```ini
+httpaddr=0.0.0.0
+httpport=8182
+baseurl=http://22.10.10.10:8182
+```
+
+### 6.2 MySQL 配置
+
+```ini
+db_adapter=mysql
+db_host=127.0.0.1
+db_port=3306
+db_database=mindoc
+db_username=root
+db_password=your_password
+```
+
+生产环境建议使用独立数据库账号，不建议直接使用 root。
+
+## 7. 内网登录配置
+
+内网部署通常不需要第三方登录、验证码和忘记密码：
+
+```ini
+show_third_party_login=false
+show_login_captcha=false
+show_forgot_password=false
+```
+
+如使用 HTTP 登录：
+
+```ini
+auth_method=http
+http_login_url=你的内网登录接口
+http_login_password_encrypt=true
+http_login_password_aes_key=DiyFDNeMBxW1SGgp
+http_login_secret=你的登录密钥
+```
+
+说明：
+
+- `http_login_password_encrypt=true` 表示前端会对密码进行 AES 加密后提交。
+- `http_login_password_aes_key` 需要与内网登录接口约定一致。
+- 登录页字段会显示为“域用户”和“域密码”。
+
+## 8. AI 问答配置
+
+### 8.1 开启 AI 问答
+
+```ini
+enable_ai_chat=true
+```
+
+### 8.2 普通聊天模型
+
+```ini
+ai_endpoint=https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+ai_model=qwen2.5-14b-instruct
+ai_api_key=你的API_KEY
+ai_request_profile=openai
+ai_auth_header=Authorization
+ai_auth_prefix=Bearer
+ai_request_timeout=120
+ai_request_retries=2
+```
+
+字段说明：
+
+- `ai_endpoint`：聊天模型请求地址。
+- `ai_model`：默认聊天模型。
+- `ai_api_key`：模型 API Key。
+- `ai_request_profile`：请求格式，按模型网关适配，例如 `openai`、`aicoding`、`bocai`。
+- `ai_auth_header`：认证请求头。
+- `ai_auth_prefix`：认证前缀。
+- `ai_request_timeout`：请求超时时间。
+- `ai_request_retries`：失败重试次数。
+
+### 8.3 模型下拉框
+
+```ini
+ai_model_options=qwen_chat_medium,Cot-quick,bocai-agent,code wiki
+```
+
+说明：
+
+- 普通模型走 `ai_endpoint`。
+- `bocai-agent` 走 agent 专用配置。
+- `code wiki` 走 Code Wiki 专用配置。
+
+## 9. 向量检索配置
+
+如需使用向量检索，配置 embedding：
+
+```ini
+ai_embedding_enabled=true
+ai_embedding_endpoint=http://你的embedding地址
+ai_embedding_model=embedding
+ai_embedding_request_profile=bocai
+ai_embedding_api_key=你的embedding_API_KEY
+ai_embedding_auth_header=Authorization
+ai_embedding_auth_prefix=Bearer
+ai_embedding_input_format=string
+```
+
+当前支持的 embedding 请求格式：
+
 ```json
 {
-  "mindoc": {
-    "transport": "streamable_http",
-    "url": "http://127.0.0.1:8181/mcp/?api_key=demo-mcp-api-key",
-    "headers":{},
-    "timeout":600
-  }
+  "model": "embedding",
+  "input": "你是谁开发的"
 }
 ```
+
+页面中只有勾选“向量检索”后，后端才会实际调用 embedding 模型。
+
+## 10. bocai-agent 配置
+
+```ini
+ai_agent_endpoint=http://你的agent地址
+ai_agent_model=bocai-agent
+ai_agent_request_profile=auto
+ai_agent_api_key=
+ai_agent_fallback_api_key=false
+ai_agent_auth_header=auto
+ai_agent_auth_prefix=auto
+ai_agent_request_timeout=120
+ai_agent_request_retries=2
+```
+
 说明：
-`transport`为传输方式，目前支持`streamable_http`。
-`url`为Mindoc的MCP服务地址，示例配置中Endpoint默认为`http://127.0.0.1:8181`，默认的API密钥为`demo-mcp-api-key`，可自行修改为对接时项目实际使用的Endpoint和API密钥。
 
-# 项目截图
+- `ai_agent_api_key` 用于配置 agent 独立密钥。
+- `ai_agent_request_profile=auto` 表示默认跟随 `ai_request_profile`，例如主模型配置为 `bocai` 时，`bocai-agent` 也使用 bocai 请求格式。
+- `ai_agent_fallback_api_key=false` 表示不复用普通聊天模型的 `ai_api_key`。
+- 只有 agent 和普通聊天模型共用同一个 Key 时，才建议设置为 `true`。
 
-**创建项目**
+## 11. Code Wiki 配置
 
-![创建项目](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/create.png?raw=true)
+当模型选择 `code wiki` 时，页面会显示 Code Wiki 仓库下拉框。
 
-**项目列表**
+```ini
+code_wiki_endpoint=http://22.10.124.20:8001/chat/completions/stream
+code_wiki_repo_url=D:\JavaProject\wiki\IN0800
+code_wiki_provider=openai
+code_wiki_model=Cot-quick
+code_wiki_language=zh
+code_wiki_type=local
+```
 
-![项目列表](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/project_list.png?raw=true)
+仓库列表接口：
 
-**项目概述**
+```ini
+code_wiki_repo_list_endpoint=http://你的接口地址/repos
+code_wiki_repo_list_method=GET
+```
 
-![项目概述](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/intro.png?raw=true)
+新增仓库接口：
 
-**项目成员**
+```ini
+code_wiki_repo_add_endpoint=http://你的接口地址/repos
+code_wiki_repo_add_method=POST
+```
 
-![项目成员](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/member.png?raw=true)
+说明：Code Wiki 仓库列表接口和新增仓库接口是普通业务接口，不是大模型接口。
 
-**项目设置**
+## 12. OpenAPI 导入配置
 
-![项目设置](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/project_setting.png?raw=true)
+开启接口：
 
-**基于Editor.md开发的Markdown编辑器**
+```ini
+openapi_markdown_import_enabled=true
+openapi_markdown_import_token=你的接口token
+openapi_markdown_import_auth_header=X-MinDoc-Token
+openapi_markdown_import_auth_prefix=
+```
 
-![基于Editor.md开发的Markdown编辑器](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/editor_md.png?raw=true)
+请求地址：
 
-**基于wangEditor开发的富文本编辑器**
+```text
+POST /openapi/markdown/import
+```
 
-![基于wangEditor开发的富文本编辑器](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/wang_editor.png?raw=true)
+请求示例：
 
+```json
+{
+  "book_identify": "demo",
+  "path": "接口文档/支付接口",
+  "title": "支付接口说明",
+  "identify": "payment-api",
+  "markdown": "# 支付接口说明\n\n这里是 Markdown 内容。",
+  "overwrite": true,
+  "auto_create_dirs": true,
+  "order_sort": 1
+}
+```
 
-**基于cherryMarkdown开发的编辑器**
+## 13. Windows 部署流程
 
-![基于cherry-markdown开发的编辑器](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/cheery-markdown.png?raw=true)
+1. 将 `mindoc-ai-windows-amd64-package.tar.gz` 拷贝到服务器。
+2. 解压部署包。
+3. 进入解压目录。
+4. 修改 `conf/app.conf`。
+5. 配置 MySQL、端口、登录方式和 AI 模型。
+6. 如目标数据库缺少 AI 表，执行 `deploy_mysql_ai_schema.sql`。
+7. 启动服务：
 
-**项目预览**
+```powershell
+.\mindoc-ai-windows-amd64.exe
+```
 
-![项目预览](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/preview.png?raw=true)
+8. 浏览器访问：
 
-**超级管理员后台**
+```text
+http://127.0.0.1:8181
+```
 
-![超级管理员后台](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/admin.png?raw=true)
+9. 登录后确认首页、项目列表、AI 问答入口是否正常。
 
+## 14. Linux AMD64 部署流程
 
-# 使用的技术(TODO: 最新技术栈整理中，使用的第三方库升级中)
+1. 上传部署包：
 
-- [Beego](https://github.com/beego/beego) ~~1.10.0~~
-- MySQL 5.6
-- [editor.md](https://github.com/pandao/editor.md) Markdown 编辑器
-- [cherry-markdown](https://github.com/Tencent/cherry-markdown) Cherry Markdown Writer
-- [Bootstrap](https://github.com/twbs/bootstrap) 3.2
-- [jQuery](https://github.com/jquery/jquery) 库
-- [WebUploader](https://github.com/fex-team/webuploader) 文件上传框架
-- [NProgress](https://github.com/rstacruz/nprogress) 库
-- [jsTree](https://github.com/vakata/jstree) 树状结构库
-- [Font Awesome](https://github.com/FortAwesome/Font-Awesome) 字体库
-- [Cropper](https://github.com/fengyuanchen/cropper) 图片剪裁库
-- [layer](https://github.com/sentsin/layer) 弹出层框架
-- [highlight.js](https://github.com/highlightjs/highlight.js) 代码高亮库
-- ~~to-markdown~~[Turndown](https://github.com/domchristie/turndown) HTML转Markdown库
-- ~~quill 富文本编辑器~~
-- [wangEditor](https://github.com/wangeditor-team/wangEditor) 富文本编辑器
-  - 参考
-    - [wangEditor v4.7 富文本编辑器教程](https://www.bookstack.cn/books/wangeditor-4.7-zh)
-    - [扩展菜单注册太过繁琐 #2493](https://github.com/wangeditor-team/wangEditor/issues/2493)
-  - 工具： `https://babeljs.io/repl` + `@babel/plugin-transform-classes`
-- [Vue.js](https://github.com/vuejs/vue) 框架
-- [MCP-Go](https://github.com/mark3labs/mcp-go)
+```bash
+scp mindoc-ai-linux-amd64-package.tar.gz user@server:/opt/
+```
 
+2. 登录服务器并解压：
 
-# 主要功能
+```bash
+cd /opt
+tar -zxvf mindoc-ai-linux-amd64-package.tar.gz
+cd mindoc-ai-linux-amd64-package
+```
 
-- 项目管理，可以对项目进行编辑更改，成员添加, 项目排序等。
-- 文档管理，添加和删除文档等。
-- 评论管理，可以管理文档评论和自己发布的评论。
-- 用户管理，添加和禁用用户，个人资料更改等。
-- 用户权限管理 ， 实现用户角色的变更。
-- 项目加密，可以设置项目公开状态，私有项目需要通过Token访问。
-- 站点配置，多语言切换, 可开启匿名访问、验证码等。
+3. 赋予执行权限：
 
-# 参与开发
+```bash
+chmod +x mindoc-ai-linux-amd64
+```
 
-我们欢迎您在 MinDoc 项目的 GitHub 上报告 issue 或者 pull request。
+4. 修改配置：
 
-如果您还不熟悉GitHub的Fork and Pull开发模式，您可以阅读GitHub的文档（https://help.github.com/articles/using-pull-requests） 获得更多的信息。
+```bash
+vi conf/app.conf
+```
 
-# 关于作者[lifei6671](https://github.com/lifei6671)
+5. 如目标数据库缺少 AI 表，执行：
 
-一个不纯粹的PHPer，一个不自由的 gopher 。
+```bash
+mysql -h数据库地址 -P3306 -u用户名 -p 数据库名 < deploy_mysql_ai_schema.sql
+```
 
+6. 前台启动：
 
-# 部署补充
-- 若内网部署，draw.io无法使用外网，则需要用tomcat运行war包，见（https://github.com/jgraph/drawio） 从release下载，之后修改markdown.js的TODO行对应的链接即可
-- 为了护眼，简单增加了编辑界面的主题切换，见editormd.js和markdown_edit_template.tpl
-- (需重新编译项)为了对已删除文档/文档引用图片删除文字后，对悬空无引用的图片/附件进行清理，增加了清理接口，需重新编译
-     - 编译后除二进制文件外还需更新三个文件: conf/lang/en-us.ini,zh-cn.ini; attach_list.tpl
-     - 若不想重新编译，也可通过database/clean.py，手动执行对无引用图片/附件的文件清理和数据库记录双向清理。
-- 若采用nginx二级部署，以yourpath/为例，需修改
-     - conf/app.conf修改：`baseurl="/yourpath"`
-     - static/js/kancloud.js文件中`url: "/comment/xxxxx` => `url: "/yourpath" + "/comment/xxxxx`, 共两处
+```bash
+./mindoc-ai-linux-amd64
+```
 
-     - nginx端口代理示例:
-     ```
-     增加
-     location  /yourpath/ {
-          rewrite ^/yourpath/(.*) /$1  break;
-          proxy_pass http://127.0.0.1:8181;
-     }
-     ```
-     注意使用的是127.0.0.1，根据自身选择替换，如果nginx是docker部署，则还需要在docker中托管运行mindoc，具体参考如下配置:
-     - docker-compose代理示例(docker-nginx代理运行mindoc)
-     ```
-     version: '3'
-     services:
-       mynginx:
-       image: nginx:latest
-       ports:
-         - "8880:80"
-       command: 
-         - bash
-         - -c
-         - |
-             service nginx start
-             cd /src/mindoc/ && ./mindoc
-       volumes:
-         - ..:/src
-         - ./nginx:/etc/nginx/conf.d
-     ```
+7. 后台启动：
 
-     目录结构
-     ```
-     onefolder
-     |
-       - docker
-       |
-         - docker-compose.yml
-         - nginx
-         |
-           - mynginx.conf
-       
-       - mindoc
-       |
-         - database/
-         - conf/
-         - ...
-     ```
+```bash
+nohup ./mindoc-ai-linux-amd64 > mindoc.log 2>&1 &
+```
+
+8. 查看日志：
+
+```bash
+tail -f mindoc.log
+```
+
+9. 浏览器访问：
+
+```text
+http://服务器IP:8181
+```
+
+## 15. systemd 服务示例
+
+如需配置为 Linux 系统服务，可创建：
+
+```text
+/etc/systemd/system/mindoc-ai.service
+```
+
+示例：
+
+```ini
+[Unit]
+Description=MinDoc AI
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/mindoc-ai-linux-amd64-package
+ExecStart=/opt/mindoc-ai-linux-amd64-package/mindoc-ai-linux-amd64
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+启动：
+
+```bash
+systemctl daemon-reload
+systemctl enable mindoc-ai
+systemctl start mindoc-ai
+systemctl status mindoc-ai
+```
+
+## 16. Nginx 反向代理示例
+
+如果需要通过 Nginx 代理访问：
+
+```nginx
+server {
+    listen 80;
+    server_name mindoc.example.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:8181;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+代理后建议同步修改：
+
+```ini
+baseurl=http://mindoc.example.com
+```
+
+## 17. 部署后检查
+
+部署完成后建议检查：
+
+- 首页能正常打开。
+- 登录页显示“域用户”和“域密码”。
+- 登录页不显示第三方登录、验证码、忘记密码。
+- 左上角系统名显示“知识管理”。
+- 页脚显示“软件中心（深圳）开发一部”。
+- 项目列表能正常展示。
+- 文档能正常编辑和保存。
+- 保存后文档能自动发布。
+- AI 问答页面能打开。
+- 检索项目范围能显示当前用户可访问项目。
+- 普通模型能正常回答。
+- 勾选向量检索后能看到 embedding 相关 Timing。
+- 选择 `bocai-agent` 后能调用 agent。
+- 选择 `code wiki` 后能显示仓库下拉。
+- OpenAPI 导入 Markdown 文档正常。
+
+## 18. 升级和回滚建议
+
+升级前：
+
+- 备份数据库。
+- 备份原部署目录。
+- 记录原 `conf/app.conf`。
+
+升级时：
+
+- 替换可执行文件。
+- 替换 `static/`。
+- 替换 `views/`。
+- 替换 `conf/lang/`。
+- 合并新增配置项。
+- 执行新增 SQL。
+
+回滚时：
+
+- 停止新服务。
+- 恢复旧部署目录。
+- 如数据库结构已变更，按备份恢复数据库。
+- 启动旧服务。
+
+## 19. 常见部署问题
+
+### 19.1 端口被占用
+
+处理方式：
+
+```bash
+netstat -tunlp | grep 8181
+```
+
+或修改：
+
+```ini
+httpport=新的端口
+```
+
+### 19.2 登录提示验证码不正确
+
+确认：
+
+```ini
+show_login_captcha=false
+```
+
+修改后需要重启服务并清理浏览器缓存。
+
+### 19.3 编辑页面空白
+
+通常是静态资源或语言文件没有同步。
+
+请确认部署目录包含：
+
+```text
+static/
+views/
+conf/lang/zh-cn.ini
+conf/lang/en-us.ini
+```
+
+### 19.4 AI 调用超时
+
+可调大：
+
+```ini
+ai_request_timeout=180
+ai_request_retries=2
+```
+
+如果是 agent 或 embedding，也需要调整对应配置。
+
+### 19.5 向量检索提示 embedding 未配置
+
+请确认：
+
+```ini
+ai_embedding_enabled=true
+ai_embedding_model=embedding
+ai_embedding_endpoint=你的embedding地址
+```
+
+## 20. 详细功能手册
+
+详细功能试用说明请查看：
+
+```text
+MinDoc_AI_试用手册.md
+```
+
+## 21. 安全建议
+
+- 不要将真实 API Key 提交到 GitHub 或公开文档。
+- 内网部署建议通过环境变量或运维配置系统管理密钥。
+- OpenAPI 导入接口建议配置强 token。
+- 对外暴露时建议增加 HTTPS、IP 白名单和访问审计。
+- 生产数据库账号建议使用最小权限。
+- 模型接口如涉及敏感文档，应确认模型服务部署在可信环境。
+
+## 22. 技术栈
+
+- Go
+- Beego
+- MySQL
+- Markdown / Editor.md / Cherry Markdown
+- Bootstrap
+- jQuery
+- OpenAI 兼容模型接口
+- 可选 embedding 语义检索
+
+## 23. License
+
+本工程基于 MinDoc 改造，请遵循原项目 License 及公司内部使用规范。

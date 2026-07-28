@@ -1,8 +1,8 @@
-appname = mindoc
+﻿appname = mindoc
 
 #默认监听的网卡,为空则监听所有
 httpaddr="${MINDOC_ADDR}"
-httpport = "${MINDOC_PORT||8181}"
+httpport = "${MINDOC_PORT||8182}"
 runmode = "${MINDOC_RUN_MODE||dev}"
 sessionon = true
 sessionname = mindoc_id
@@ -54,12 +54,18 @@ timezone = Asia/Shanghai
 
 ####################MySQL 数据库配置###########################
 #支持MySQL，sqlite3，postgres三种数据库，如果是sqlite3 则 db_database 标识数据库的物理目录
-db_adapter="${MINDOC_DB_ADAPTER||sqlite3}"
-db_host="${MINDOC_DB_HOST||127.0.0.1}"
-db_port="${MINDOC_DB_PORT||3306}"
-db_database="${MINDOC_DB_DATABASE||./database/mindoc.db}"
-db_username="${MINDOC_DB_USERNAME||root}"
-db_password="${MINDOC_DB_PASSWORD||123456}"
+db_adapter="mysql"
+db_host=22.11.143.78
+db_port=3306
+db_database=mindoc_prod
+db_username=mindoc_prod
+db_password=""
+#db_adapter="${MINDOC_DB_ADAPTER||sqlite3}"
+#db_host="${MINDOC_DB_HOST||127.0.0.1}"
+#db_port="${MINDOC_DB_PORT||3306}"
+#db_database="${MINDOC_DB_DATABASE||./database/mindoc.db}"
+#db_username="${MINDOC_DB_USERNAME||root}"
+#db_password="${MINDOC_DB_PASSWORD||123456}"
 #是否使用SSL，支持posgres，可选的值有：
 #disable - No SSL
 #require - Always SSL (skip verification)
@@ -78,7 +84,7 @@ cover=/static/images/book.jpg
 avatar=/static/images/headimgurl.jpg
 
 #默认阅读令牌长度
-token_size=12
+token_size=""
 
 #上传文件的后缀,如果不限制后缀可以设置为 *
 upload_file_ext=txt|doc|docx|xls|xlsx|ppt|pptx|pdf|7z|rar|jpg|jpeg|png|gif|mp4|webm|avi
@@ -86,7 +92,7 @@ upload_file_ext=txt|doc|docx|xls|xlsx|ppt|pptx|pdf|7z|rar|jpg|jpeg|png|gif|mp4|w
 #上传的文件大小限制
 # - 如果不填写, 则默认1GB，如果希望超过1GB，必须带单位
 # - 如果填写，单位可以是 TB、GB、MB、KB，不带单位表示字节
-upload_file_size=10MB
+upload_file_size=300MB
 
 ####################邮件配置######################
 #是否启用邮件
@@ -98,7 +104,7 @@ smtp_user_name="${MINDOC_SMTP_USER_NAME||admin@iminho.me}"
 #smtp服务器地址
 smtp_host="${MINDOC_SMTP_HOST||smtp.163.com}""
 #smtp密码
-smtp_password="${MINDOC_SMTP_PASSWORD}"
+smtp_password=""
 #端口号
 smtp_port="${MINDOC_SMTP_PORT||25}""
 #发送邮件的显示名称
@@ -117,7 +123,7 @@ export_process_num="${MINDOC_EXPORT_PROCESS_NUM||1}"
 export_limit_num="${MINDOC_EXPORT_LIMIT_NUM||5}"
 
 #指同时等待导出的任务数量
-export_queue_limit_num="${MINDOC_EXPORT_QUEUE_LIMIT_NUM||100}"
+export_queue_limit_num="${MINDOC_EXPORT_QUEUE_LIMIT_NUM||20}"
 
 #导出项目的缓存目录配置
 export_output_path="${MINDOC_EXPORT_OUTPUT_PATH||./runtime/cache}"
@@ -143,16 +149,27 @@ ldap_base="${MINDOC_LDAP_BASE||dc=example,dc=com}"
 #第一次绑定ldap用户dn
 ldap_user="${MINDOC_LDAP_USER||cn=ldap helper,ou=example.com,dc=example,dc=com}"
 #第一次绑定ldap用户密码
-ldap_password="${MINDOC_LDAP_PASSWORD||xxx}"
+ldap_password=""
 #自动注册用户角色：0 超级管理员 /1 管理员/ 2 普通用户/ 3 只读用户
 ldap_user_role=${MINDOC_LDAP_USER_ROLE||2}
 #ldap搜索filter规则,AD服务器: objectClass=User, openldap服务器: objectClass=posixAccount ,也可以定义为其他属性,如: title=mindoc
 ldap_filter="${MINDOC_LDAP_FILTER||objectClass=posixAccount}"
 
 ############# HTTP自定义接口登录 ################
-http_login_url=
+http_login_url=http://81.88.147.142:8082/user/mindocLogin/187,2594
+http_login_password_encrypt="${MINDOC_HTTP_LOGIN_PASSWORD_ENCRYPT||true}"
+http_login_password_aes_key=""
 #md5计算的秘钥
-http_login_secret=hzsp*THJUqwbCU%s
+http_login_secret=""
+##################################
+
+############# 登录页展示配置 ################
+# 是否展示钉钉/企业微信等第三方登录入口，内网部署建议关闭
+show_third_party_login="${MINDOC_SHOW_THIRD_PARTY_LOGIN||false}"
+# 是否展示登录验证码，内网部署建议关闭
+show_login_captcha="${MINDOC_SHOW_LOGIN_CAPTCHA||false}"
+# 是否展示忘记密码入口，内网部署建议关闭
+show_forgot_password="${MINDOC_SHOW_FORGOT_PASSWORD||false}"
 ##################################
 
 ###############配置CDN加速##################
@@ -194,7 +211,7 @@ cache_redis_host="${MINDOC_CACHE_REDIS_HOST||127.0.0.1:6379}"
 cache_redis_db="${MINDOC_CACHE_REDIS_DB||0}"
 
 #redis服务器密码
-cache_redis_password="${MINDOC_CACHE_REDIS_PASSWORD}"
+cache_redis_password=""
 
 #缓存键的前缀
 cache_redis_prefix="${MINDOC_CACHE_REDIS_PREFIX||mindoc::cache}"
@@ -232,7 +249,7 @@ dingtalk_corpid="${MINDOC_DINGTALK_CORPID}"
 dingtalk_app_key="${MINDOC_DINGTALK_APPKEY}"
 
 # 钉钉AppSecret
-dingtalk_app_secret="${MINDOC_DINGTALK_APPSECRET}"
+dingtalk_app_secret=""
 
 ########企业微信登录配置##############
 
@@ -243,30 +260,178 @@ workweixin_corpid="${MINDOC_WORKWEIXIN_CORPID}"
 workweixin_agentid="${MINDOC_WORKWEIXIN_AGENTID}"
 
 # 应用密钥
-workweixin_secret="${MINDOC_WORKWEIXIN_SECRET}"
+workweixin_secret=""
 
 # i18n config
 i18n_list=zh-cn:简体中文|en-us:English|ru-ru:Русский
 default_lang="zh-cn"
 
+# Global document behavior.
+# true: saving a document publishes it immediately by default.
+document_auto_release_default="${MINDOC_DOCUMENT_AUTO_RELEASE_DEFAULT||true}"
+
+############# OpenAPI Markdown文档导入 ################
+# 给其他系统调用，自动向指定项目路径新增或更新 Markdown 文档。
+# 默认关闭；启用后必须配置 token。请求头默认使用 Authorization: Bearer <token>。
+openapi_markdown_import_enabled="${MINDOC_OPENAPI_MARKDOWN_IMPORT_ENABLED||false}"
+openapi_markdown_import_token=""
+openapi_markdown_import_auth_header="${MINDOC_OPENAPI_MARKDOWN_IMPORT_AUTH_HEADER||Authorization}"
+openapi_markdown_import_auth_prefix="${MINDOC_OPENAPI_MARKDOWN_IMPORT_AUTH_PREFIX||Bearer }"
+
 # MCP Server 功能
 enable_mcp_server="${MINDOC_ENABLE_MCP_SERVER||false}"
-mcp_api_key="${MINDOC_MCP_API_KEY||demo-mcp-api-key}"
+mcp_api_key=""
 
-# AI 问答能力（基于文档知识库）
-enable_ai_chat="${MINDOC_ENABLE_AI_CHAT||false}"
-ai_api_key="${MINDOC_AI_API_KEY||}"
-ai_endpoint="${MINDOC_AI_ENDPOINT||https://api.openai.com/v1/chat/completions}"
-ai_model="${MINDOC_AI_MODEL||gpt-4o-mini}"
-ai_temperature="${MINDOC_AI_TEMPERATURE||0.3}"
-ai_max_tokens="${MINDOC_AI_MAX_TOKENS||1600}"
+# AI Q&A capability based on MinDoc knowledge chunks.
+enable_ai_chat="${MINDOC_ENABLE_AI_CHAT||true}"
+#ai_api_key="${MINDOC_AI_API_KEY||}"
+#ai_endpoint="${MINDOC_AI_ENDPOINT||https://api.openai.com/v1/chat/completions}"
+#ai_model="${MINDOC_AI_MODEL||gpt-4o-mini}"
+#ai_request_profile="${MINDOC_AI_REQUEST_PROFILE||openai}"
 ai_request_timeout="120"
+
+# Authentication header. Use auto for profile defaults:
+# openai: Authorization: Bearer <ai_api_key>
+# bocai: Authorization: <ai_api_key>
+# aicoding: Token: <ai_api_key>
+# Set ai_auth_prefix="none" when the provider requires no prefix.
+ai_auth_header="${MINDOC_AI_AUTH_HEADER||auto}"
+ai_auth_prefix="${MINDOC_AI_AUTH_PREFIX||auto}"
+
+# Optional request body switches. Leave empty to use profile defaults.
+ai_include_system_prompt="${MINDOC_AI_INCLUDE_SYSTEM_PROMPT||}"
+ai_include_temperature="${MINDOC_AI_INCLUDE_TEMPERATURE||}"
+ai_include_max_tokens=""
+ai_include_enable_thinking="${MINDOC_AI_INCLUDE_ENABLE_THINKING||}"
+ai_stream="${MINDOC_AI_STREAM||}"
+ai_include_telemetry="${MINDOC_AI_INCLUDE_TELEMETRY||}"
+ai_telemetry_name="${MINDOC_AI_TELEMETRY_NAME||}"
+ai_telemetry_client_name="${MINDOC_AI_TELEMETRY_CLIENT_NAME||}"
+ai_telemetry_client_version="${MINDOC_AI_TELEMETRY_CLIENT_VERSION||}"
+
+ai_temperature="${MINDOC_AI_TEMPERATURE||0.3}"
+#ai_max_tokens="${MINDOC_AI_MAX_TOKENS||1600}"
 ai_context_top_n="${MINDOC_AI_CONTEXT_TOP_N||6}"
-ai_context_length="${MINDOC_AI_CONTEXT_LENGTH||1400}"
+#ai_context_length="${MINDOC_AI_CONTEXT_LENGTH||1400}"
 ai_chunk_size="${MINDOC_AI_CHUNK_SIZE||900}"
 ai_chunk_overlap="${MINDOC_AI_CHUNK_OVERLAP||120}"
 ai_chunk_init_limit="${MINDOC_AI_CHUNK_INIT_LIMIT||300}"
 ai_chunk_scan_limit="${MINDOC_AI_CHUNK_SCAN_LIMIT||3000}"
-ai_system_prompt="你是一个只服务于 Mindoc 文档库的知识问答助手。请使用中文作答，并基于提供的知识库内容推理回答。"
-# Disable thinking mode for non-streaming DashScope-compatible requests
+ai_enable_sql_prefilter="${MINDOC_AI_ENABLE_SQL_PREFILTER||true}"
+ai_enable_fulltext="${MINDOC_AI_ENABLE_FULLTEXT||true}"
+ai_sql_prefilter_terms="${MINDOC_AI_SQL_PREFILTER_TERMS||12}"
+ai_chunk_cache_enabled="${MINDOC_AI_CHUNK_CACHE_ENABLED||true}"
+ai_chunk_cache_ttl="${MINDOC_AI_CHUNK_CACHE_TTL||300}"
+ai_system_prompt="你是一个只服务于 MinDoc 文档库的知识问答助手。请使用中文作答，并基于提供的知识库内容推理回答。"
+
+# DashScope thinking models can set this to false for non-streaming requests.
 ai_enable_thinking="false"
+
+# Bocai Postman-compatible example:
+# ai_request_profile="bocai"
+# ai_endpoint="http://22.11.14.122:8888/bocai-chat/agent/v1/chat/completions"
+# ai_model="Cot-quick"
+# ai_auth_header="Authorization"
+# ai_auth_prefix="none"
+# ai_api_key="REPLACE_ME"
+
+# Aicoding Postman-compatible example:
+ai_request_profile="aicoding"
+ai_endpoint="http://22.189.54.139/aicoding/api/v2/completions"
+ai_auth_header="Token"
+ai_auth_prefix="none"
+ai_api_key=""
+ai_max_tokens=""
+#ai_model="qwen_chat_long"
+#ai_context_length="262144"
+ai_model="qwen_chat_medium"
+ai_context_length="131072"
+
+# AI semantic vector retrieval.
+# When enabled, MinDoc stores OpenAI-compatible embedding vectors for Markdown chunks
+# in md_ai_knowledge_embeddings and blends vector similarity with keyword scores.
+ai_embedding_enabled=false
+# Leave endpoint empty to derive it from ai_endpoint by replacing /chat/completions with /embeddings.
+ai_embedding_endpoint="http://22.11.14.122:8888/bocai-chat/agent/v1/embeddings"
+ai_embedding_model="embedding"
+# Embedding calls can use a different provider/profile/key/header from chat calls.
+# Supported profiles: openai, bocai, aicoding, auto. auto follows ai_request_profile.
+ai_embedding_request_profile="bocai"
+ai_embedding_api_key=""
+ai_embedding_auth_header="Authorization"
+ai_embedding_auth_prefix=auto
+# array: {"model":"embedding","input":["text"]}; string: {"model":"embedding","input":"text"}.
+# Use string for bocai-style embedding APIs that do not accept an input array.
+ai_embedding_input_format=string
+ai_embedding_batch_size=8
+ai_embedding_backfill_limit=32
+ai_embedding_text_length=1200
+ai_embedding_score_weight=18
+ai_embedding_timeout_sec=120
+
+# Optional comma-separated chat models shown in the AI Q&A model selector.
+ai_model_options=qwen_chat_medium,Cot-quick,bocai-agent,code wiki
+
+# AI Agent endpoint option.
+# Selecting model "bocai-agent" keeps MinDoc retrieval enabled, then sends the question and retrieved
+# Markdown knowledge chunks to this OpenAI-compatible Agent endpoint.
+ai_agent_endpoint="http://81.89.133.101:8888/bocai-chat/mtp/v1/chat/completions"
+ai_agent_model="Qwen35-27"
+ai_agent_api_key=""
+ai_agent_request_profile="bocai"
+# Set true to reuse ai_api_key when ai_agent_api_key is empty.
+ai_agent_fallback_api_key="${MINDOC_AI_AGENT_FALLBACK_API_KEY||false}"
+ai_agent_auth_header="Authorization"
+ai_agent_auth_prefix="Bearer "
+ai_agent_request_timeout="${MINDOC_AI_AGENT_REQUEST_TIMEOUT||120}"
+ai_agent_request_retries="${MINDOC_AI_AGENT_REQUEST_RETRIES||2}"
+
+# Special AI Q&A model option: code wiki.
+# Selecting "code wiki" uses this endpoint and payload format instead of the normal chat request.
+ai_code_wiki_endpoint=http://22.10.124.20:8001/chat/completions/stream
+ai_code_wiki_api_key=""
+ai_code_wiki_repo_url=D:\JavaProject\wiki\IN0800
+ai_code_wiki_type=local
+ai_code_wiki_provider=openai
+ai_code_wiki_model=Cot-quick
+ai_code_wiki_language=zh
+; Code Wiki repository list configuration
+ai_code_wiki_repo_list_endpoint=
+ai_code_wiki_repo_list_method=GET
+ai_code_wiki_repo_list_api_key=""
+ai_code_wiki_repo_list_auth_header=Authorization
+ai_code_wiki_repo_list_auth_prefix=Bearer 
+ai_code_wiki_repo_list_body=
+
+; Code Wiki repository add configuration
+ai_code_wiki_repo_add_endpoint=
+ai_code_wiki_repo_add_method=POST
+ai_code_wiki_repo_add_api_key=""
+ai_code_wiki_repo_add_auth_header=Authorization
+ai_code_wiki_repo_add_auth_prefix=Bearer 
+ai_code_wiki_repo_add_body=
+
+; Code Wiki ordinary API configuration. Prefer these keys; legacy ai_code_wiki_* keys remain compatible.
+code_wiki_endpoint=http://22.10.124.20:8001/chat/completions/stream
+code_wiki_api_key=""
+code_wiki_auth_header=Authorization
+code_wiki_auth_prefix=Bearer 
+code_wiki_repo_url=D:\JavaProject\wiki\IN0800
+code_wiki_type=local
+code_wiki_provider=openai
+code_wiki_model=Cot-quick
+code_wiki_language=zh
+code_wiki_repo_list_endpoint=
+code_wiki_repo_list_method=GET
+code_wiki_repo_list_api_key=""
+code_wiki_repo_list_auth_header=Authorization
+code_wiki_repo_list_auth_prefix=Bearer 
+code_wiki_repo_list_body=
+code_wiki_repo_add_endpoint=
+code_wiki_repo_add_method=POST
+code_wiki_repo_add_api_key=""
+code_wiki_repo_add_auth_header=Authorization
+code_wiki_repo_add_auth_prefix=Bearer 
+code_wiki_repo_add_body=
+
+
