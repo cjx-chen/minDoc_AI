@@ -1,0 +1,1331 @@
+/* MinDoc article reader UI, aligned with the refreshed application shell. */
+:root {
+    --reader-bg: #f5f7f8;
+    --reader-card: #ffffff;
+    --reader-ink: #1f2329;
+    --reader-sub: #646a73;
+    --reader-muted: #8f959e;
+    --reader-line: #e5e6eb;
+    --reader-green: #009a61;
+    --reader-green-dark: #00794c;
+    --reader-green-tint: #e7f6f0;
+    --reader-radius: 12px;
+    --reader-shadow: 0 1px 2px rgba(31, 35, 41, .04), 0 10px 32px rgba(31, 35, 41, .07);
+    --reader-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+html,
+body,
+.m-manual.manual-reader {
+    background: var(--reader-bg);
+    color: var(--reader-ink);
+    font-family: var(--reader-font);
+    -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 64px;
+    right: 0;
+    bottom: 0;
+    left: 292px;
+    pointer-events: none;
+    background:
+        radial-gradient(700px 300px at 92% 0, rgba(0, 154, 97, .055), transparent 68%),
+        linear-gradient(180deg, #f8faf9 0, var(--reader-bg) 220px);
+}
+
+::selection {
+    background: rgba(0, 154, 97, .18);
+}
+
+/* 统一焦点样式：移除点击默认黑框，键盘导航保留可见焦点 */
+.m-manual a:focus,
+.m-manual button:focus {
+    outline: none;
+}
+
+.m-manual a:focus-visible {
+    outline: 2px solid var(--reader-green);
+    outline-offset: 2px;
+}
+
+/* Header and action bar */
+.m-manual.manual-reader .manual-head {
+    min-width: 980px;
+    height: 64px;
+    line-height: 64px;
+    padding: 0 22px;
+    border: 0;
+    border-bottom: 1px solid var(--reader-line);
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 1px 10px rgba(31, 35, 41, .05);
+}
+
+.m-manual.manual-reader .manual-head .container-fluid {
+    padding: 0;
+}
+
+.m-manual.manual-reader .manual-head .manual-title {
+    display: flex;
+    align-items: center;
+    height: 64px;
+    line-height: 64px;
+    min-width: 0;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.m-manual.manual-reader .book-title {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 420px;
+    color: var(--reader-ink);
+    letter-spacing: .01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.m-manual.manual-reader .book-title::before {
+    content: "";
+    flex: none;
+    width: 26px;
+    height: 26px;
+    margin-right: 10px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #00b578 0%, var(--reader-green) 58%, var(--reader-green-dark) 100%);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .22), 0 3px 10px rgba(0, 154, 97, .18);
+}
+
+.m-manual.manual-reader .manual-menu {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    height: 64px;
+    line-height: normal;
+}
+
+.m-manual.manual-reader .manual-menu > .dropdown,
+.m-manual.manual-reader .manual-menu > a {
+    float: none !important;
+    margin-right: 0 !important;
+}
+
+.m-manual.manual-reader .manual-menu .btn {
+    height: 36px;
+    padding: 7px 13px;
+    border: 1px solid var(--reader-line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--reader-sub);
+    font-size: 14px;
+    line-height: 20px;
+    box-shadow: none;
+    transition: color .15s ease, border-color .15s ease, background-color .15s ease, transform .15s ease;
+}
+
+.m-manual.manual-reader .manual-menu .btn:hover,
+.m-manual.manual-reader .manual-menu .btn:focus,
+.m-manual.manual-reader .manual-menu .open > .btn {
+    border-color: rgba(0, 154, 97, .4);
+    background: var(--reader-green-tint);
+    color: var(--reader-green-dark);
+    outline: none;
+}
+
+.m-manual.manual-reader .manual-menu .btn:active {
+    transform: translateY(1px);
+}
+
+.m-manual.manual-reader .manual-menu .btn i {
+    margin-right: 4px;
+    color: var(--reader-green);
+}
+
+.m-manual.manual-reader .manual-menu #article-ai-chat-button {
+    border-color: var(--reader-green);
+    background: var(--reader-green);
+    color: #fff;
+}
+
+.m-manual.manual-reader .manual-menu #article-ai-chat-button:hover,
+.m-manual.manual-reader .manual-menu #article-ai-chat-button:focus {
+    border-color: var(--reader-green-dark);
+    background: var(--reader-green-dark);
+}
+
+.m-manual.manual-reader .manual-menu #article-ai-chat-button i {
+    color: #fff;
+}
+
+.m-manual.manual-reader .manual-menu .dropdown-menu {
+    min-width: 148px;
+    margin-top: 8px !important;
+    padding: 6px;
+    border: 1px solid var(--reader-line);
+    border-radius: 9px;
+    box-shadow: var(--reader-shadow);
+}
+
+.m-manual.manual-reader .manual-menu .dropdown-menu > li > a {
+    padding: 8px 10px;
+    border-radius: 6px;
+    color: var(--reader-sub);
+}
+
+.m-manual.manual-reader .manual-menu .dropdown-menu > li > a:hover {
+    background: var(--reader-green-tint);
+    color: var(--reader-green-dark);
+}
+
+/* Catalog sidebar */
+.m-manual.manual-reader .manual-left {
+    top: 64px;
+    width: 292px;
+    border-right: 1px solid var(--reader-line);
+    background: rgba(255, 255, 255, .92);
+    box-shadow: 4px 0 18px rgba(31, 35, 41, .025);
+}
+
+.m-manual.manual-reader .manual-tab .tab-navg {
+    position: relative;
+    z-index: 2;
+    box-sizing: border-box;
+    height: 48px;
+    padding: 7px 8px 9px;
+    border-bottom: 1px solid var(--reader-line);
+    background: #fff;
+}
+
+.m-manual.manual-reader .manual-tab .tab-navg::after {
+    display: none;
+}
+
+.m-manual.manual-reader .manual-tab .tab-navg .navg-item {
+    height: 32px;
+    line-height: 32px;
+    padding: 0 10px;
+    border-radius: 7px;
+    color: var(--reader-muted);
+    transition: color .15s ease, background-color .15s ease;
+}
+
+.m-manual.manual-reader .manual-tab .tab-navg .navg-item:hover,
+.m-manual.manual-reader .manual-tab .tab-navg .navg-item.active {
+    background: var(--reader-green-tint);
+    color: var(--reader-green-dark);
+}
+
+.m-manual.manual-reader .manual-tab .tab-navg .navg-item i {
+    margin-right: 4px;
+}
+
+.m-manual.manual-reader #handlerMenuShow,
+.m-manual.manual-reader #catalog-location-button {
+    height: 32px !important;
+    border-radius: 7px;
+    color: var(--reader-sub) !important;
+    transition: color .15s ease, background-color .15s ease;
+}
+
+.m-manual.manual-reader #handlerMenuShow:hover,
+.m-manual.manual-reader #catalog-location-button:hover {
+    background: var(--reader-green-tint);
+    color: var(--reader-green-dark) !important;
+}
+
+.m-manual.manual-reader .manual-tab .tab-wrap {
+    z-index: 1;
+    top: 54px;
+    border-top: 1px solid var(--reader-line);
+    background: var(--reader-bg);
+    box-shadow: none;
+}
+
+.m-manual.manual-reader .manual-tab .tab-wrap::before {
+    display: none;
+}
+
+.m-manual.manual-reader .catalog-list {
+    padding: 18px 8px 24px;
+}
+
+/* 目录行高统一：node / wholerow / anchor 保持一致，保证文字垂直居中 */
+.m-manual.manual-reader .catalog-list .jstree-node {
+    min-height: 34px;
+    line-height: 34px;
+}
+
+.m-manual.manual-reader .catalog-list .jstree-anchor,
+.m-manual.manual-reader .catalog-list a {
+    box-sizing: border-box;
+    height: 34px;
+    min-height: 34px;
+    line-height: 34px;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-radius: 7px;
+    color: var(--reader-sub);
+    box-shadow: none;
+    vertical-align: middle;
+    transition: color .15s ease, background-color .15s ease;
+}
+
+.m-manual.manual-reader .catalog-list .jstree-anchor {
+    display: inline-flex;
+    align-items: center;
+    line-height: normal;
+}
+
+.m-manual.manual-reader .catalog-list .jstree-anchor .jstree-icon {
+    vertical-align: middle;
+}
+
+.m-manual.manual-reader .catalog-list .jstree-anchor:hover,
+.m-manual.manual-reader .catalog-list a:hover {
+    background: transparent;
+    color: var(--reader-ink);
+    text-decoration: none;
+}
+
+/* wholerow 插件：悬停/选中态作用于整行 .jstree-wholerow */
+.m-manual.manual-reader .catalog-list .jstree-wholerow {
+    height: 34px;
+    line-height: 34px;
+    border-radius: 7px;
+    transition: background-color .15s ease;
+}
+
+/* 覆盖 jstree.css 悬停白字（.jstree-hovered / .jstree-wholerow-hovered color:white !important） */
+.m-manual.manual-reader .catalog-list .jstree-anchor.jstree-hovered,
+.m-manual.manual-reader .catalog-list .jstree-hovered,
+.m-manual.manual-reader .catalog-list .jstree-anchor.jstree-hovered *,
+.m-manual.manual-reader .catalog-list .jstree-wholerow-hovered,
+.m-manual.manual-reader .catalog-list .jstree-default .jstree-wholerow-hovered {
+    color: var(--reader-ink) !important;
+}
+
+.m-manual.manual-reader .catalog-list .jstree-wholerow-hovered,
+.m-manual.manual-reader .catalog-list li:hover > .jstree-wholerow {
+    background: #f1f4f3 !important;
+}
+
+.m-manual.manual-reader .catalog-list .jstree-wholerow-clicked,
+.m-manual.manual-reader .catalog-list .jstree-wholerow-clicked.jstree-wholerow-hovered,
+.m-manual.manual-reader .catalog-list .jstree-wholerow-clicked:hover {
+    background: var(--reader-green-tint) !important;
+    box-shadow: inset 3px 0 0 var(--reader-green);
+}
+
+.m-manual.manual-reader .catalog-list .jstree-wholerow-clicked + .jstree-anchor,
+.m-manual.manual-reader .catalog-list .jstree-anchor.jstree-clicked,
+.m-manual.manual-reader .catalog-list .jstree-clicked,
+.m-manual.manual-reader .catalog-list a.active {
+    background: transparent !important;
+    color: var(--reader-green-dark) !important;
+    font-weight: 500;
+    box-shadow: none;
+}
+
+.m-manual.manual-reader .catalog-list .jstree-anchor.jstree-clicked *,
+.m-manual.manual-reader .catalog-list .jstree-clicked * {
+    color: var(--reader-green-dark) !important;
+}
+
+/* 覆盖 kancloud.js 注入的目录定位高亮（#sidebar .jstree-clicked !important 蓝色） */
+#sidebar .jstree-clicked,
+#sidebar .jstree-clicked:hover,
+#sidebar li.catalog-location-flash > .jstree-anchor {
+    background: transparent !important;
+    color: var(--reader-green-dark) !important;
+    box-shadow: none !important;
+}
+
+#sidebar .jstree-wholerow-clicked,
+#sidebar .jstree-wholerow-clicked:hover,
+#sidebar li.catalog-location-flash > .jstree-wholerow {
+    background: var(--reader-green-tint) !important;
+    box-shadow: inset 3px 0 0 var(--reader-green) !important;
+}
+
+/* Keep every visual layer of the project catalog on the same row box. */
+#sidebar.jstree-default .jstree-node,
+#sidebar .jstree-node {
+    min-height: 34px !important;
+    line-height: 34px !important;
+}
+
+#sidebar.jstree-default .jstree-wholerow,
+#sidebar .jstree-wholerow {
+    height: 34px !important;
+    line-height: 34px !important;
+}
+
+#sidebar.jstree-default .jstree-anchor,
+#sidebar .jstree-anchor {
+    display: inline-flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 1.4 !important;
+    vertical-align: top !important;
+}
+
+#sidebar .jstree-anchor > .jstree-icon,
+#sidebar .jstree-anchor > .jstree-icon:empty {
+    flex: 0 0 24px;
+    align-self: center;
+    width: 24px !important;
+    height: 24px !important;
+    line-height: 24px !important;
+    vertical-align: middle !important;
+}
+
+#sidebar .jstree-node > .jstree-ocl,
+#sidebar .jstree-node > .jstree-ocl:empty {
+    width: 24px !important;
+    height: 34px !important;
+    line-height: 34px !important;
+    vertical-align: top !important;
+}
+
+#sidebar .jstree-clicked *,
+#sidebar li.catalog-location-flash > .jstree-anchor * {
+    color: var(--reader-green-dark) !important;
+}
+
+.m-manual.manual-reader .manual-search .search-form {
+    position: relative;
+    margin: 8px 0 0;
+    padding: 12px 12px 4px;
+}
+
+.m-manual.manual-reader .manual-search .search-form form,
+.m-manual.manual-reader .manual-search .search-form .form-group {
+    position: relative;
+    margin: 0;
+}
+
+.m-manual.manual-reader .manual-search .form-control {
+    height: 38px;
+    padding-right: 44px;
+    border-color: var(--reader-line);
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+.m-manual.manual-reader .manual-search .form-control:focus {
+    border-color: var(--reader-green);
+    box-shadow: 0 0 0 3px rgba(0, 154, 97, .1);
+}
+
+.m-manual.manual-reader .manual-search .btn-search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 38px;
+    padding: 0;
+    border: 0;
+    border-left: 1px solid var(--reader-line);
+    border-radius: 0 8px 8px 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.m-manual.manual-reader .manual-search .btn-search .fa {
+    width: auto;
+    height: auto;
+    margin: 0;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+.m-manual.manual-reader .manual-search .search-result {
+    top: 66px;
+    width: auto;
+    border-top: 1px solid var(--reader-line);
+}
+
+.m-manual.manual-reader .manual-left .m-copyright {
+    padding: 10px 8px;
+    border-top: 1px solid var(--reader-line);
+    background: rgba(255, 255, 255, .96);
+    color: var(--reader-muted);
+    line-height: 22px;
+}
+
+.m-manual.manual-reader .manual-left .m-copyright a {
+    color: var(--reader-green-dark);
+}
+
+.manual-fullscreen-switch .open,
+.manual-fullscreen-switch .close {
+    width: 28px;
+    height: 28px;
+    background: var(--reader-green);
+    box-shadow: 0 3px 10px rgba(0, 154, 97, .2);
+}
+
+.manual-fullscreen-switch .open:hover,
+.manual-fullscreen-switch .close:hover {
+    background: var(--reader-green-dark);
+}
+
+/* ==========================================================================
+   文章内目录 TOC（markdown.preview.css 覆盖层）
+   ========================================================================== */
+.m-manual.manual-reader .article-body .markdown-toc {
+    width: 264px;
+    max-height: calc(100vh - 160px);
+    padding: 8px;
+    border: 1px solid var(--reader-line);
+    border-radius: 12px;
+    background: var(--reader-card);
+    box-shadow: 0 4px 18px rgba(31, 35, 41, .07);
+    font-size: 13px;
+}
+
+.m-manual.manual-reader .markdown-toc::-webkit-scrollbar {
+    width: 6px;
+}
+
+.m-manual.manual-reader .markdown-toc::-webkit-scrollbar-thumb {
+    border-radius: 6px;
+    background: #d3d9dd;
+}
+
+.m-manual.manual-reader .markdown-toc::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.m-manual.manual-reader .markdown-toc .markdown-toc-list {
+    padding: 4px 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.m-manual.manual-reader .markdown-toc .markdown-toc-list ul {
+    padding-left: 0;
+}
+
+.m-manual.manual-reader .markdown-toc-list .directory-item,
+.m-manual.manual-reader .markdown-toc .markdown-toc-list > li {
+    margin: 1px 0;
+    padding: 0;
+    line-height: 1.5;
+    color: var(--reader-sub);
+}
+
+.m-manual.manual-reader .markdown-toc-list .directory-item-link {
+    display: block;
+    padding: 5px 10px;
+    border-radius: 7px;
+    color: var(--reader-sub);
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color .15s ease, background-color .15s ease;
+}
+
+.m-manual.manual-reader .markdown-toc-list .directory-item-link:hover {
+    background: #f1f4f3;
+    color: var(--reader-ink);
+    text-decoration: none;
+}
+
+/* 层级缩进保留，叠加圆角缩进基准 */
+.m-manual.manual-reader .markdown-toc-list .directory-item-link-1 { padding-left: 10px; font-weight: 500; color: var(--reader-ink); }
+.m-manual.manual-reader .markdown-toc-list .directory-item-link-2 { padding-left: 22px; }
+.m-manual.manual-reader .markdown-toc-list .directory-item-link-3 { padding-left: 34px; }
+.m-manual.manual-reader .markdown-toc-list .directory-item-link-4 { padding-left: 46px; }
+.m-manual.manual-reader .markdown-toc-list .directory-item-link-5 { padding-left: 58px; }
+.m-manual.manual-reader .markdown-toc-list .directory-item-link-6 { padding-left: 70px; }
+
+/* 滚动跟踪高亮：左侧绿色竖条 + 绿底 */
+.m-manual.manual-reader .markdown-toc-list .directory-item-active {
+    border-left: 0 !important;
+}
+
+.m-manual.manual-reader .markdown-toc-list .directory-item-active > a,
+.m-manual.manual-reader .markdown-toc .markdown-toc-list > li.active > a {
+    background: var(--reader-green-tint) !important;
+    color: var(--reader-green-dark) !important;
+    font-weight: 500;
+    box-shadow: inset 3px 0 0 var(--reader-green);
+}
+
+.m-manual.manual-reader .markdown-toc-list .directory-item-active > a:hover {
+    color: var(--reader-green-dark) !important;
+}
+
+.m-manual.manual-reader .markdown-toc .markdown-toc-list > li.active {
+    border-right: 0;
+}
+
+/* Article canvas */
+.m-manual.manual-reader .manual-right {
+    top: 64px;
+    left: 292px;
+    background: transparent;
+}
+
+.m-manual.manual-reader .manual-right .manual-article {
+    width: calc(100% - 48px);
+    max-width: 1240px;
+    min-height: calc(100vh - 112px);
+    margin: 24px auto 56px;
+    overflow: hidden;
+    border: 1px solid rgba(229, 230, 235, .9);
+    border-radius: var(--reader-radius);
+    background: var(--reader-card);
+    box-shadow: var(--reader-shadow);
+}
+
+.m-manual.manual-reader .manual-article .article-head {
+    padding: 46px 64px 28px;
+}
+
+.m-manual.manual-reader .article-head .container-fluid {
+    padding: 0;
+}
+
+.m-manual.manual-reader .article-head .row {
+    margin: 0;
+}
+
+.m-manual.manual-reader .article-head .col-md-2 {
+    display: none;
+}
+
+.m-manual.manual-reader .article-head .col-md-8 {
+    width: 100%;
+    padding: 0;
+    text-align: left;
+}
+
+.m-manual.manual-reader .manual-article .article-head h1 {
+    position: relative;
+    margin: 0;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--reader-line);
+    color: var(--reader-ink);
+    font-size: 34px;
+    font-weight: 650;
+    line-height: 1.35;
+    letter-spacing: -.02em;
+    text-align: left;
+    white-space: normal;
+}
+
+.m-manual.manual-reader .manual-article .article-head h1::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 56px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--reader-green);
+}
+
+.m-manual.manual-reader .manual-article .article-content {
+    min-width: 0;
+    max-width: none;
+    padding: 0 64px 56px;
+}
+
+.m-manual.manual-reader .manual-article .article-content .article-body {
+    min-height: 240px;
+    padding: 0;
+    color: #2b3037;
+    font-size: 16px;
+    line-height: 1.82;
+}
+
+.m-manual.manual-reader .article-body h1,
+.m-manual.manual-reader .article-body h2,
+.m-manual.manual-reader .article-body h3,
+.m-manual.manual-reader .article-body h4,
+.m-manual.manual-reader .article-body h5,
+.m-manual.manual-reader .article-body h6 {
+    color: var(--reader-ink);
+    font-weight: 600;
+    letter-spacing: -.01em;
+}
+
+.m-manual.manual-reader .article-body h2 {
+    margin-top: 2.2em;
+    padding-bottom: .45em;
+    border-bottom-color: var(--reader-line);
+}
+
+.m-manual.manual-reader .article-body h3 {
+    margin-top: 1.8em;
+}
+
+.m-manual.manual-reader .article-body a {
+    color: var(--reader-green-dark);
+    text-decoration-color: rgba(0, 121, 76, .3);
+    text-underline-offset: 3px;
+}
+
+.m-manual.manual-reader .article-body blockquote {
+    margin: 20px 0;
+    padding: 14px 18px;
+    border-left: 4px solid var(--reader-green);
+    border-radius: 0 8px 8px 0;
+    background: var(--reader-green-tint);
+    color: var(--reader-sub);
+}
+
+.m-manual.manual-reader .article-body pre {
+    border: 0;
+    border-radius: 9px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .04);
+}
+
+.m-manual.manual-reader .article-body code:not([class*="language-"]) {
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: #eef2f0;
+    color: #116346;
+}
+
+.m-manual.manual-reader .article-body table {
+    margin: 20px 0;
+    border-color: var(--reader-line);
+}
+
+.m-manual.manual-reader .article-body table th {
+    background: #f4f7f6;
+    color: var(--reader-ink);
+    font-weight: 600;
+}
+
+.m-manual.manual-reader .article-body table th,
+.m-manual.manual-reader .article-body table td {
+    padding: 10px 12px;
+    border-color: var(--reader-line);
+}
+
+.m-manual.manual-reader .article-body img {
+    border-radius: 8px;
+}
+
+.m-manual.manual-reader .jump-top .view-backtop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--reader-line);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .94);
+    color: var(--reader-green-dark);
+    box-shadow: 0 6px 18px rgba(31, 35, 41, .1);
+}
+
+.m-manual.manual-reader .m-comment {
+    margin-top: 48px;
+    padding-top: 28px;
+    border-top: 1px solid var(--reader-line);
+}
+
+.m-manual.manual-reader .manual-progress {
+    top: 64px;
+}
+
+.m-manual.manual-reader .manual-progress .progress-bar {
+    background: var(--reader-green);
+}
+
+/* ==========================================================================
+   评论区
+   ========================================================================== */
+.m-manual.manual-reader .m-comment .comment-item {
+    margin-bottom: 0;
+    padding: 16px 4px 14px;
+    border-top: 1px solid var(--reader-line);
+    line-height: 1.7;
+    transition: background-color .15s ease;
+}
+
+.m-manual.manual-reader .m-comment .comment-item:first-child {
+    border-top: 0;
+}
+
+.m-manual.manual-reader .m-comment .comment-item:hover {
+    background: rgba(0, 154, 97, .02);
+}
+
+.m-manual.manual-reader .m-comment .comment-item .info {
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+.m-manual.manual-reader .m-comment .comment-item .name {
+    color: var(--reader-ink);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.m-manual.manual-reader .m-comment .comment-item .name:hover {
+    color: var(--reader-green-dark);
+}
+
+.m-manual.manual-reader .m-comment .comment-item .date {
+    margin-left: 10px;
+    color: var(--reader-muted);
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.m-manual.manual-reader .m-comment .comment-item .content {
+    margin: 6px 0 4px;
+    padding: 2px 0;
+    color: #2b3037;
+    font-size: 14px;
+    line-height: 1.75;
+}
+
+.m-manual.manual-reader .m-comment .comment-item .content pre {
+    padding: 12px 14px;
+    border: 1px solid var(--reader-line);
+    border-radius: 8px;
+    background: #f6f8f8;
+    font-size: 13px;
+}
+
+.m-manual.manual-reader .m-comment .comment-item .operate .number {
+    color: var(--reader-muted);
+    font-size: 12px;
+}
+
+.m-manual.manual-reader .m-comment .comment-item .operate .delete {
+    color: var(--reader-muted) !important;
+    cursor: pointer;
+    transition: color .15s ease;
+}
+
+.m-manual.manual-reader .m-comment .comment-item .operate .delete:hover {
+    color: #d64545 !important;
+}
+
+/* 评论输入区 */
+.m-manual.manual-reader .m-comment .comment-post {
+    margin-top: 20px;
+    padding: 16px;
+    border: 1px solid var(--reader-line);
+    border-radius: 10px;
+    background: #fbfcfc;
+}
+
+.m-manual.manual-reader .m-comment .comment-post .textarea-input,
+.m-manual.manual-reader .w-textarea .textarea-input {
+    padding: 10px 12px;
+    border: 1px solid var(--reader-line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--reader-ink);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.7;
+    box-shadow: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.m-manual.manual-reader .m-comment .comment-post .textarea-input:focus,
+.m-manual.manual-reader .w-textarea .textarea-input:focus {
+    border-color: var(--reader-green);
+    box-shadow: 0 0 0 3px rgba(0, 154, 97, .1);
+    outline: none;
+}
+
+.m-manual.manual-reader .m-comment .comment-post .pull-right {
+    margin-top: 10px;
+}
+
+.m-manual.manual-reader .m-comment .comment-post .btn-success {
+    height: 32px;
+    padding: 5px 18px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--reader-green);
+    font-size: 13px;
+    box-shadow: none;
+    transition: background-color .15s ease;
+}
+
+.m-manual.manual-reader .m-comment .comment-post .btn-success:hover,
+.m-manual.manual-reader .m-comment .comment-post .btn-success:focus {
+    background: var(--reader-green-dark);
+}
+
+/* 评论分页 */
+.m-manual.manual-reader .m-comment #page {
+    margin: 18px 0 4px;
+    text-align: center;
+}
+
+.m-manual.manual-reader .m-comment #page li a {
+    margin: 0 2px;
+    border: 1px solid var(--reader-line);
+    border-radius: 7px;
+    color: var(--reader-sub);
+    font-size: 13px;
+    box-shadow: none;
+}
+
+.m-manual.manual-reader .m-comment #page li a:hover {
+    border-color: var(--reader-green);
+    background: var(--reader-green-tint);
+    color: var(--reader-green-dark);
+}
+
+.m-manual.manual-reader .m-comment #page li.active a {
+    border-color: var(--reader-green);
+    background: var(--reader-green);
+    color: #fff;
+}
+
+/* 空评论状态 */
+.m-manual.manual-reader .m-comment .comment-empty {
+    padding: 36px 0;
+    text-align: center;
+    color: var(--reader-muted);
+}
+
+.m-manual.manual-reader .m-comment .comment-empty .text {
+    font-size: 13px;
+}
+
+/* ==========================================================================
+   左侧搜索结果
+   ========================================================================== */
+.m-manual.manual-reader .manual-search .search-result {
+    border-top: 1px solid var(--reader-line);
+}
+
+.m-manual.manual-reader .manual-search .search-list a {
+    height: 34px;
+    line-height: 34px;
+    margin: 2px 8px;
+    padding: 0 12px;
+    border-radius: 7px;
+    color: var(--reader-sub);
+    font-size: 13px;
+    transition: color .15s ease, background-color .15s ease;
+}
+
+.m-manual.manual-reader .manual-search .search-list a:hover {
+    background: #f1f4f3;
+    color: var(--reader-ink);
+}
+
+.m-manual.manual-reader .manual-search .search-list a.active {
+    background: var(--reader-green-tint);
+    color: var(--reader-green-dark);
+    font-weight: 500;
+    box-shadow: inset 3px 0 0 var(--reader-green);
+}
+
+.m-manual.manual-reader .manual-search .search-result .search-empty {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+}
+
+.m-manual.manual-reader .manual-search .search-result .search-empty .empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f2faf6 0%, #e0f3ea 100%);
+    box-shadow: 0 0 0 8px rgba(0, 154, 97, .04);
+}
+
+.m-manual.manual-reader .manual-search .search-result .search-empty .empty-icon svg {
+    width: 46px;
+    height: 46px;
+}
+
+.m-manual.manual-reader .manual-search .search-result .search-empty .empty-text {
+    color: var(--reader-muted);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+.m-manual.manual-reader .manual-search .btn-search {
+    color: var(--reader-muted);
+    transition: color .15s ease;
+}
+
+.m-manual.manual-reader .manual-search .btn-search:hover {
+    color: var(--reader-green-dark);
+}
+
+/* 搜索高亮 */
+.m-manual.manual-reader .search-highlight {
+    padding: 0 2px;
+    border-radius: 3px;
+    background: rgba(0, 154, 97, .18) !important;
+    color: var(--reader-green-dark);
+}
+
+/* ==========================================================================
+   目录树细节
+   ========================================================================== */
+.m-manual.manual-reader .catalog-list .jstree-icon:empty {
+    color: var(--reader-muted);
+}
+
+.m-manual.manual-reader .catalog-list .jstree-anchor > .jstree-icon {
+    transition: color .15s ease;
+}
+
+.m-manual.manual-reader .catalog-list .jstree-anchor:hover > .jstree-icon {
+    color: var(--reader-green-dark);
+}
+
+.m-manual.manual-reader .catalog-list .jstree-clicked > .jstree-icon {
+    color: var(--reader-green-dark);
+}
+
+/* ==========================================================================
+   返回顶部按钮
+   ========================================================================== */
+.m-manual.manual-reader .jump-top .view-backtop:hover {
+    border-color: var(--reader-green);
+    background: var(--reader-green);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0, 154, 97, .22);
+}
+
+/* ==========================================================================
+   分享/下载弹窗
+   ========================================================================== */
+.m-manual .modal-content {
+    border: 1px solid var(--reader-line);
+    border-radius: 12px;
+    box-shadow: 0 18px 48px rgba(31, 35, 41, .16);
+}
+
+.m-manual .modal-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--reader-line);
+}
+
+.m-manual .modal-header .modal-title {
+    color: var(--reader-ink);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.m-manual .modal-body {
+    padding: 18px 20px;
+}
+
+.m-manual .modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--reader-line);
+}
+
+.m-manual .modal-body .form-control {
+    height: 38px;
+    border-color: var(--reader-line);
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+.m-manual .modal-body .form-control:focus {
+    border-color: var(--reader-green);
+    box-shadow: 0 0 0 3px rgba(0, 154, 97, .1);
+}
+
+.m-manual .modal-footer .btn-default {
+    border-color: var(--reader-line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--reader-sub);
+    box-shadow: none;
+}
+
+.m-manual .modal-footer .btn-default:hover {
+    border-color: var(--reader-green);
+    background: var(--reader-green-tint);
+    color: var(--reader-green-dark);
+}
+
+/* 分享/下载弹窗（位于 .m-manual 容器之外，需单独统一） */
+body > .modal .modal-content {
+    border: 1px solid var(--reader-line);
+    border-radius: 12px;
+    box-shadow: 0 18px 48px rgba(31, 35, 41, .16);
+}
+
+body > .modal .modal-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--reader-line);
+}
+
+body > .modal .modal-header .modal-title {
+    color: var(--reader-ink);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+body > .modal .modal-body {
+    padding: 18px 20px;
+}
+
+body > .modal .modal-body .qr-box {
+    text-align: center;
+    padding-bottom: 16px;
+}
+
+body > .modal .modal-body .qr-box img {
+    max-width: 168px;
+    border: 1px solid var(--reader-line);
+    border-radius: 10px;
+    padding: 8px;
+    background: #fff;
+}
+
+body > .modal .modal-body .form-group .control-label {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 38px;
+    margin: 0;
+    padding: 0;
+    text-align: right;
+}
+
+body > .modal .modal-body .form-group .col-sm-10 {
+    display: flex;
+    align-items: center;
+    min-height: 38px;
+}
+
+body > .modal .modal-body .form-control {
+    height: 38px;
+    border-color: var(--reader-line);
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+body > .modal .modal-body .form-control:focus {
+    border-color: var(--reader-green);
+    box-shadow: 0 0 0 3px rgba(0, 154, 97, .1);
+}
+
+body > .modal .modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--reader-line);
+}
+
+body > .modal .modal-footer .btn-default {
+    border-color: var(--reader-line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--reader-sub);
+    box-shadow: none;
+}
+
+body > .modal .modal-footer .btn-default:hover {
+    border-color: var(--reader-green);
+    background: var(--reader-green-tint);
+    color: var(--reader-green-dark);
+}
+
+/* AI 问答弹窗 */
+#article-ai-chat-modal .modal-header {
+    border-bottom: 1px solid var(--reader-line);
+}
+
+#article-ai-chat-modal .modal-title {
+    color: var(--reader-ink);
+    font-weight: 600;
+}
+
+#article-ai-chat-modal .modal-content {
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   滚动条
+   ========================================================================== */
+.m-manual.manual-reader .manual-left ::-webkit-scrollbar,
+.m-manual.manual-reader .manual-right::-webkit-scrollbar,
+.m-manual.manual-reader .article-body pre::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.m-manual.manual-reader .manual-left ::-webkit-scrollbar-thumb,
+.m-manual.manual-reader .manual-right::-webkit-scrollbar-thumb,
+.m-manual.manual-reader .article-body pre::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background: #d3d9dd;
+}
+
+.m-manual.manual-reader .manual-left ::-webkit-scrollbar-thumb:hover,
+.m-manual.manual-reader .manual-right::-webkit-scrollbar-thumb:hover {
+    background: #b6bfc5;
+}
+
+.m-manual.manual-reader .manual-left ::-webkit-scrollbar-track,
+.m-manual.manual-reader .manual-right::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+@media screen and (max-width: 1180px) and (min-width: 841px) {
+    .m-manual.manual-reader .manual-head {
+        padding: 0 14px;
+    }
+
+    .m-manual.manual-reader .manual-menu {
+        gap: 5px;
+    }
+
+    .m-manual.manual-reader .manual-menu .btn {
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
+    .m-manual.manual-reader .manual-right .manual-article {
+        width: calc(100% - 28px);
+        margin-top: 14px;
+    }
+
+    .m-manual.manual-reader .manual-article .article-head {
+        padding: 38px 42px 24px;
+    }
+
+    .m-manual.manual-reader .manual-article .article-content {
+        padding: 0 42px 48px;
+    }
+}
+
+@media screen and (max-width: 840px) {
+    body::before {
+        display: none;
+    }
+
+    .m-manual.manual-reader .manual-head {
+        min-width: 0;
+        height: 55px;
+        line-height: 55px;
+        padding: 0 12px;
+    }
+
+    .m-manual.manual-reader .manual-head .manual-title {
+        height: 55px;
+        line-height: 55px;
+        padding-left: 28px;
+    }
+
+    .m-manual.manual-reader .book-title {
+        max-width: calc(100vw - 145px);
+        font-size: 15px;
+    }
+
+    .m-manual.manual-reader .book-title::before {
+        width: 22px;
+        height: 22px;
+        margin-right: 8px;
+        border-radius: 6px;
+    }
+
+    .m-manual.manual-reader .btn-mobile {
+        top: 9px;
+        right: 10px;
+        height: 36px;
+        border-color: var(--reader-line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--reader-sub);
+    }
+
+    .m-manual.manual-reader .manual-left {
+        top: 0;
+        width: 84%;
+        max-width: 340px;
+        left: -84%;
+    }
+
+    .m-manual.manual-reader .manual-right {
+        top: 55px;
+        left: 0;
+        background: #fff;
+    }
+
+    .m-manual.manual-reader .manual-right .manual-article {
+        width: 100%;
+        min-height: calc(100vh - 55px);
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .m-manual.manual-reader .manual-article .article-content {
+        padding: 24px 18px 44px;
+    }
+
+    .m-manual.manual-reader .manual-article .article-content .article-body {
+        font-size: 15px;
+        line-height: 1.75;
+    }
+
+    .m-manual.manual-reader .manual-progress {
+        top: 55px;
+    }
+}
+
+@media print {
+    html,
+    body,
+    .m-manual.manual-reader,
+    .m-manual.manual-reader .manual-right {
+        background: #fff !important;
+    }
+
+    body::before {
+        display: none;
+    }
+
+    .m-manual.manual-reader .manual-right .manual-article {
+        width: 100%;
+        max-width: none;
+        min-height: 0;
+        margin: 0;
+        border: 0;
+        box-shadow: none;
+    }
+}

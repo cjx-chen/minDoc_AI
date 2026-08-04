@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <title>{{i18n .Lang "doc.comparision"}} - Powered by MinDoc</title>
-    <link rel="shortcut icon" href="{{cdnimg "/favicon.ico"}}" />
+    <link rel="shortcut icon" href="{{cdnimg "/static/favicon.ico"}}" />
     <link href="{{cdncss "/static/fonts/notosans.css"}}" rel='stylesheet' type='text/css' />
     <link type='text/css' rel='stylesheet' href="{{cdncss "/static/mergely/editor/lib/wicked-ui.css"}}" />
     <link type='text/css' rel='stylesheet' href="{{cdncss "/static/mergely/editor/lib/tipsy/tipsy.css"}}" />

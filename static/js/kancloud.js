@@ -241,7 +241,7 @@ function locateCurrentCatalogNode() {
     var $node = $("#" + escapeCssSelector(node.id));
     if ($node.length) {
         if (!$("#catalog-location-style").length) {
-            $("head").append('<style id="catalog-location-style">#sidebar .jstree-clicked,#sidebar .jstree-clicked:hover,#sidebar li.catalog-location-flash > .jstree-anchor{background:#d9edf7!important;color:#245269!important;box-shadow:none!important;}#sidebar .jstree-wholerow-clicked,#sidebar .jstree-wholerow-clicked:hover,#sidebar li.catalog-location-flash > .jstree-wholerow{background:#d9edf7!important;}#sidebar .jstree-clicked *,#sidebar li.catalog-location-flash > .jstree-anchor *{color:#245269!important;}</style>');
+            $("head").append('<style id="catalog-location-style">#sidebar .jstree-clicked,#sidebar .jstree-clicked:hover,#sidebar li.catalog-location-flash > .jstree-anchor{background:transparent!important;color:#0b6b45!important;box-shadow:none!important;}#sidebar .jstree-wholerow-clicked,#sidebar .jstree-wholerow-clicked:hover,#sidebar li.catalog-location-flash > .jstree-wholerow{background:#e7f4ee!important;box-shadow:inset 3px 0 0 #009a61!important;}#sidebar .jstree-clicked *,#sidebar li.catalog-location-flash > .jstree-anchor *{color:#0b6b45!important;}</style>');
         }
         var $container = $(".manual-catalog");
         if (!$container.length) {

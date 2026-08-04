@@ -27,6 +27,9 @@
     <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/prismjs/prismjs.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/article-reader.css" "version"}}&catalogalign=20260803b&sidebarspacing=20260803j&searchalign=20260803c" rel="stylesheet">
+    <link href="{{cdncss "/static/css/article-toc-toggle.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/article-ai-modal.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/print.css" "version"}}" media="print" rel="stylesheet">
 
     <script type="text/javascript">
@@ -103,22 +106,6 @@
                 {{end}}
                 {{end}}
                 </div>
-                {{if .Model.IsDownload}}
-                <div class="dropdown pull-right" style="margin-right: 10px;">
-                    <button type="button" class="btn btn-primary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-cloud-download" aria-hidden="true"></i> {{i18n .Lang "doc.download"}} <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel" style="margin-top: -5px;">
-                        <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "pdf"}}" target="_blank">PDF</a> </li>
-                        <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "epub"}}" target="_blank">EPUB</a> </li>
-                        <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "mobi"}}" target="_blank">MOBI</a> </li>
-                        <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "docx"}}" target="_blank">Word</a> </li>
-                        {{if eq .Model.Editor "markdown"}}
-                        <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "markdown"}}" target="_blank">Markdown</a> </li>
-                        {{end}}
-                    </ul>
-                </div>
-                {{end}}
             </div>
         </div>
     </header>
@@ -163,8 +150,19 @@
                             </div>
                             <div class="search-result">
                                 <div class="search-empty">
-                                    <i class="fa fa-search-plus" aria-hidden="true"></i>
-                                    <b class="text">{{i18n .Lang "message.no_search_result"}}</b>
+                                    <div class="empty-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <rect x="16" y="12" width="44" height="56" rx="5" transform="rotate(-6 16 12)" fill="#eaf6f0" stroke="#cfe8db" stroke-width="2"/>
+                                            <path d="M30 8h30l12 12v48a4 4 0 0 1-4 4H30a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="#ffffff" stroke="#009a61" stroke-width="2.5"/>
+                                            <path d="M60 8v12h12" fill="#e7f6f0" stroke="#009a61" stroke-width="2.5" stroke-linejoin="round"/>
+                                            <line x1="35" y1="32" x2="63" y2="32" stroke="#cfe8db" stroke-width="3.5" stroke-linecap="round"/>
+                                            <line x1="35" y1="42" x2="63" y2="42" stroke="#e2efe8" stroke-width="3.5" stroke-linecap="round"/>
+                                            <line x1="35" y1="52" x2="52" y2="52" stroke="#e2efe8" stroke-width="3.5" stroke-linecap="round"/>
+                                            <circle cx="68" cy="64" r="12" fill="#ffffff" stroke="#009a61" stroke-width="2.5"/>
+                                            <line x1="77" y1="73" x2="84" y2="80" stroke="#009a61" stroke-width="3.5" stroke-linecap="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="empty-text">{{i18n .Lang "message.no_search_result"}}</div>
                                 </div>
                                 <ul class="search-list" id="searchList">
                                 </ul>
@@ -261,7 +259,7 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-sm-12 text-center" style="padding-bottom: 15px;">
+                    <div class="col-sm-12 text-center qr-box">
                         <img src="{{urlfor "DocumentController.QrCode" ":key" .Model.Identify}}" alt="扫一扫手机阅读" />
                     </div>
                 </div>
@@ -290,7 +288,7 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-sm-12 text-center" style="padding-bottom: 15px;">
+                    <div class="col-sm-12 text-center qr-box">
                         <img src="{{urlfor "DocumentController.QrCode" ":key" .Model.Identify}}" alt="扫一扫手机阅读" />
                     </div>
                 </div>
@@ -321,6 +319,7 @@
 <script src="{{cdnjs "/static/js/clipboard.min.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/prismjs/prismjs.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/kancloud.js" "version"}}&anchorfix=20260521toc" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/article-toc-toggle.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/splitbar.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/custom-elements-builtin-0.6.5.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/x-frame-bypass-1.0.2.js"}}" type="text/javascript"></script>
@@ -425,11 +424,11 @@ $(function () {
                 if ($childEmbedding.length) {
                     $embeddingCheckbox.prop("checked", $childEmbedding.prop("checked"));
                     $embeddingCheckbox.prop("disabled", $childEmbedding.prop("disabled"));
-                    $embeddingWrap.show();
+                    $embeddingWrap.css("display", "inline-flex");
                 } else {
                     $embeddingWrap.hide();
                 }
-                $modelWrap.show();
+                $modelWrap.css("display", "flex");
             }
             window.syncArticleAIModelSelector = syncArticleAIModelSelector;
             $("#article-ai-chat-frame").on("load", syncArticleAIModelSelector);
