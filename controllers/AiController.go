@@ -215,7 +215,7 @@ func (c *AiController) ChatPage() {
 	c.Data["AICodeWikiRepoURL"] = getAICodeWikiDefaultRepoURL()
 	c.Data["AIEmbedded"] = c.GetString("embedded") == "1"
 	c.Data["AIBookOptions"] = c.loadReadableBookOptions()
-	c.Data["AIQuestionPlaceholder"] = "Ask a question about this MinDoc knowledge base..."
+	c.Data["AIQuestionPlaceholder"] = "请输入你的问题..."
 	c.TplName = "ai/chat.tpl"
 }
 
