@@ -1,6 +1,6 @@
-//Author:TruthHun
-//Email:TruthHun@QQ.COM
-//Date:2018-01-21
+// Author:TruthHun
+// Email:TruthHun@QQ.COM
+// Date:2018-01-21
 package converter
 
 import (
@@ -12,11 +12,13 @@ import (
 
 	"errors"
 	"os/exec"
+	"runtime"
 	"time"
 
 	"html"
 	"sync"
 
+	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils/cryptil"
 	"github.com/mindoc-org/mindoc/utils/filetil"
 	"github.com/mindoc-org/mindoc/utils/ziptil"
@@ -24,16 +26,16 @@ import (
 
 type Converter struct {
 	BasePath       string
-	OutputPath	   string
+	OutputPath     string
 	Config         Config
 	Debug          bool
 	GeneratedCover string
-	ProcessNum	 	int		//并发的任务数量
-	process 	chan func()
-	limitChan		chan bool
+	ProcessNum     int //并发的任务数量
+	process        chan func()
+	limitChan      chan bool
 }
 
-//目录结构
+// 目录结构
 type Toc struct {
 	Id    int    `json:"id"`
 	Link  string `json:"link"`
@@ -41,7 +43,7 @@ type Toc struct {
 	Title string `json:"title"`
 }
 
-//config.json文件解析结构
+// config.json文件解析结构
 type Config struct {
 	Charset      string   `json:"charset"`       //字符编码，默认utf-8编码
 	Cover        string   `json:"cover"`         //封面图片，或者封面html文件
@@ -73,15 +75,76 @@ var (
 	ebookConvert = "ebook-convert"
 )
 
+func ebookConvertName() string {
+	if runtime.GOOS == "windows" {
+		return ebookConvert + ".exe"
+	}
+	return ebookConvert
+}
+
+func resolveEbookConvertPath() string {
+	configuredPath := strings.TrimSpace(os.Getenv("MINDOC_EBOOK_CONVERT_PATH"))
+	if configuredPath == "" {
+		configuredPath = strings.TrimSpace(conf.CONF("ebook_convert_path"))
+	}
+	if configuredPath == "" {
+		configuredPath = strings.TrimSpace(conf.CONF("export_ebook_convert_path"))
+	}
+	if configuredPath != "" {
+		if filepath.IsAbs(configuredPath) || strings.ContainsAny(configuredPath, `/\`) {
+			if !filepath.IsAbs(configuredPath) {
+				configuredPath = filepath.Join(conf.WorkingDirectory, configuredPath)
+			}
+			return configuredPath
+		}
+		return configuredPath
+	}
+
+	name := ebookConvertName()
+	platformDir := runtime.GOOS + "-" + runtime.GOARCH
+	candidates := []string{
+		conf.WorkingDir("runtime", "converters", "calibre", platformDir, name),
+		conf.WorkingDir("runtime", "converters", "calibre", name),
+		conf.WorkingDir("runtime", "converters", "calibre", "Calibre", name),
+		conf.WorkingDir("runtime", "converters", "calibre", "Calibre2", name),
+		conf.WorkingDir("runtime", "converters", "calibre", "bin", name),
+		conf.WorkingDir("converters", "calibre", platformDir, name),
+		conf.WorkingDir("converters", "calibre", name),
+	}
+	for _, candidate := range candidates {
+		if stat, err := os.Stat(candidate); err == nil && !stat.IsDir() {
+			return candidate
+		}
+	}
+	return ebookConvert
+}
+
+func newEbookConvertCommand(args ...string) *exec.Cmd {
+	commandPath := resolveEbookConvertPath()
+	cmd := exec.Command(commandPath, args...)
+	if filepath.Base(commandPath) != commandPath {
+		commandDir := filepath.Dir(commandPath)
+		cmd.Env = append(os.Environ(), "PATH="+commandDir+string(os.PathListSeparator)+os.Getenv("PATH"))
+		if runtime.GOOS != "windows" {
+			cmd.Env = append(cmd.Env, "LD_LIBRARY_PATH="+commandDir+string(os.PathListSeparator)+os.Getenv("LD_LIBRARY_PATH"))
+			fontConfigFile := conf.WorkingDir("runtime", "fonts", "fonts.conf")
+			if stat, err := os.Stat(fontConfigFile); err == nil && !stat.IsDir() {
+				cmd.Env = append(cmd.Env, "FONTCONFIG_FILE="+fontConfigFile)
+			}
+		}
+	}
+	return cmd
+}
+
 func CheckConvertCommand() error {
-	args := []string{ "--version" }
-	cmd := exec.Command(ebookConvert, args...)
+	args := []string{"--version"}
+	cmd := newEbookConvertCommand(args...)
 
 	return cmd.Run()
 }
 
 // 接口文档 https://manual.calibre-ebook.com/generated/en/ebook-convert.html#table-of-contents
-//根据json配置文件，创建文档转化对象
+// 根据json配置文件，创建文档转化对象
 func NewConverter(configFile string, debug ...bool) (converter *Converter, err error) {
 	var (
 		cfg      Config
@@ -102,32 +165,32 @@ func NewConverter(configFile string, debug ...bool) (converter *Converter, err e
 				cfg.Charset = "utf-8"
 			}
 			converter = &Converter{
-				Config:   cfg,
-				BasePath: basepath,
-				Debug:    db,
+				Config:     cfg,
+				BasePath:   basepath,
+				Debug:      db,
 				ProcessNum: 1,
-				process: make(chan func(),4),
-				limitChan: make(chan bool,1),
+				process:    make(chan func(), 4),
+				limitChan:  make(chan bool, 1),
 			}
 		}
 	}
 	return
 }
 
-//执行文档转换
+// 执行文档转换
 func (convert *Converter) Convert() (err error) {
 	if !convert.Debug { //调试模式下不删除生成的文件
 		defer convert.converterDefer() //最后移除创建的多余而文件
 	}
-	if convert.process == nil{
-		convert.process = make(chan func(),4)
+	if convert.process == nil {
+		convert.process = make(chan func(), 4)
 	}
 	if convert.limitChan == nil {
 		if convert.ProcessNum <= 0 {
 			convert.ProcessNum = 1
 		}
-		convert.limitChan = make(chan bool,convert.ProcessNum)
-		for i := 0; i < convert.ProcessNum;i++{
+		convert.limitChan = make(chan bool, convert.ProcessNum)
+		for i := 0; i < convert.ProcessNum; i++ {
 			convert.limitChan <- true
 		}
 	}
@@ -154,7 +217,7 @@ func (convert *Converter) Convert() (err error) {
 	//将当前文件夹下的所有文件压缩成zip包，然后直接改名成content.epub
 	f := filepath.Join(convert.OutputPath, "content.epub")
 	os.Remove(f) //如果原文件存在了，则删除;
-	if err = ziptil.Zip(convert.BasePath,f); err == nil {
+	if err = ziptil.Zip(convert.BasePath, f); err == nil {
 		//创建导出文件夹
 		os.Mkdir(convert.BasePath+"/"+output, os.ModePerm)
 		if len(convert.Config.Format) > 0 {
@@ -165,7 +228,7 @@ func (convert *Converter) Convert() (err error) {
 					fmt.Println("convert to " + v)
 					switch strings.ToLower(v) {
 					case "epub":
-						convert.process  <- func() {
+						convert.process <- func() {
 							if err = convert.convertToEpub(); err != nil {
 								errs = append(errs, err.Error())
 								fmt.Println("转换EPUB文档失败：" + err.Error())
@@ -198,14 +261,14 @@ func (convert *Converter) Convert() (err error) {
 				close(convert.process)
 			}(convert)
 
-			group :=  sync.WaitGroup{}
+			group := sync.WaitGroup{}
 			for {
 				action, isClosed := <-convert.process
 				if action == nil && !isClosed {
-					break;
+					break
 				}
 				group.Add(1)
-				<- convert.limitChan
+				<-convert.limitChan
 				go func(group *sync.WaitGroup) {
 					action()
 					group.Done()
@@ -230,7 +293,7 @@ func (convert *Converter) Convert() (err error) {
 	return
 }
 
-//删除生成导出文档而创建的文件
+// 删除生成导出文档而创建的文件
 func (this *Converter) converterDefer() {
 	//删除不必要的文件
 	os.RemoveAll(filepath.Join(this.BasePath, "META-INF"))
@@ -242,7 +305,7 @@ func (this *Converter) converterDefer() {
 	os.RemoveAll(filepath.Join(this.BasePath, "summary.html"))    //文档目录
 }
 
-//生成metainfo
+// 生成metainfo
 func (this *Converter) generateMetaInfo() (err error) {
 	xml := `<?xml version="1.0"?>
 			<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
@@ -257,12 +320,12 @@ func (this *Converter) generateMetaInfo() (err error) {
 	return
 }
 
-//形成mimetyppe
+// 形成mimetyppe
 func (this *Converter) generateMimeType() (err error) {
 	return ioutil.WriteFile(filepath.Join(this.BasePath, "mimetype"), []byte("application/epub+zip"), os.ModePerm)
 }
 
-//生成封面
+// 生成封面
 func (this *Converter) generateTitlePage() (err error) {
 	if ext := strings.ToLower(filepath.Ext(this.Config.Cover)); !(ext == ".html" || ext == ".xhtml") {
 		xml := `<?xml version='1.0' encoding='` + this.Config.Charset + `'?>
@@ -292,7 +355,7 @@ func (this *Converter) generateTitlePage() (err error) {
 	return
 }
 
-//生成文档目录
+// 生成文档目录
 func (this *Converter) generateTocNcx() (err error) {
 	ncx := `<?xml version='1.0' encoding='` + this.Config.Charset + `'?>
 			<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="%v">
@@ -313,7 +376,7 @@ func (this *Converter) generateTocNcx() (err error) {
 	return ioutil.WriteFile(filepath.Join(this.BasePath, "toc.ncx"), []byte(ncx), os.ModePerm)
 }
 
-//生成文档目录，即summary.html
+// 生成文档目录，即summary.html
 func (this *Converter) generateSummary() (err error) {
 	//目录
 	summary := `<!DOCTYPE html>
@@ -335,7 +398,7 @@ func (this *Converter) generateSummary() (err error) {
 	return ioutil.WriteFile(filepath.Join(this.BasePath, "summary.html"), []byte(summary), os.ModePerm)
 }
 
-//将toc转成toc.ncx文件
+// 将toc转成toc.ncx文件
 func (this *Converter) tocToXml(pid, idx int) (codes []string, next_idx int) {
 	var code string
 	for _, toc := range this.Config.Toc {
@@ -359,7 +422,7 @@ func (this *Converter) tocToXml(pid, idx int) (codes []string, next_idx int) {
 	return
 }
 
-//将toc转成toc.ncx文件
+// 将toc转成toc.ncx文件
 func (this *Converter) tocToSummary(pid int) (summarys []string) {
 	summarys = append(summarys, "<ul>")
 	for _, toc := range this.Config.Toc {
@@ -381,7 +444,7 @@ func (this *Converter) tocToSummary(pid int) (summarys []string) {
 	return
 }
 
-//生成navPoint
+// 生成navPoint
 func (this *Converter) getNavPoint(toc Toc, idx int) (navpoint string, nextidx int) {
 	navpoint = `
 	<navPoint id="id%v" playOrder="%v">
@@ -395,8 +458,8 @@ func (this *Converter) getNavPoint(toc Toc, idx int) (navpoint string, nextidx i
 	return
 }
 
-//生成content.opf文件
-//倒数第二步调用
+// 生成content.opf文件
+// 倒数第二步调用
 func (this *Converter) generateContentOpf() (err error) {
 	var (
 		guide       string
@@ -489,7 +552,7 @@ func (this *Converter) generateContentOpf() (err error) {
 	return ioutil.WriteFile(filepath.Join(this.BasePath, "content.opf"), []byte(pkg), os.ModePerm)
 }
 
-//转成epub
+// 转成epub
 func (this *Converter) convertToEpub() (err error) {
 	args := []string{
 		filepath.Join(this.OutputPath, "content.epub"),
@@ -503,16 +566,16 @@ func (this *Converter) convertToEpub() (err error) {
 	//fmt.Println("正在转换EPUB文件", args[0])
 	//return cmd.Run()
 
-	return filetil.CopyFile(args[0],args[1])
+	return filetil.CopyFile(args[0], args[1])
 }
 
-//转成mobi
+// 转成mobi
 func (this *Converter) convertToMobi() (err error) {
 	args := []string{
 		filepath.Join(this.OutputPath, "content.epub"),
 		filepath.Join(this.OutputPath, output, "book.mobi"),
 	}
-	cmd := exec.Command(ebookConvert, args...)
+	cmd := newEbookConvertCommand(args...)
 	if this.Debug {
 		fmt.Println(cmd.Args)
 	}
@@ -520,7 +583,7 @@ func (this *Converter) convertToMobi() (err error) {
 	return cmd.Run()
 }
 
-//转成pdf
+// 转成pdf
 func (this *Converter) convertToPdf() (err error) {
 	args := []string{
 		filepath.Join(this.OutputPath, "content.epub"),
@@ -542,19 +605,19 @@ func (this *Converter) convertToPdf() (err error) {
 
 	//footer template
 	if len(this.Config.Footer) > 0 {
-		args = append(args, "--pdf-footer-template",this.Config.Footer)
+		args = append(args, "--pdf-footer-template", this.Config.Footer)
 	}
 
-	if strings.Count(this.Config.MarginLeft,"") > 0 {
+	if strings.Count(this.Config.MarginLeft, "") > 0 {
 		args = append(args, "--pdf-page-margin-left", this.Config.MarginLeft)
 	}
-	if strings.Count(this.Config.MarginTop,"") > 0 {
+	if strings.Count(this.Config.MarginTop, "") > 0 {
 		args = append(args, "--pdf-page-margin-top", this.Config.MarginTop)
 	}
-	if strings.Count(this.Config.MarginRight,"") > 0 {
+	if strings.Count(this.Config.MarginRight, "") > 0 {
 		args = append(args, "--pdf-page-margin-right", this.Config.MarginRight)
 	}
-	if strings.Count(this.Config.MarginBottom,"") > 0 {
+	if strings.Count(this.Config.MarginBottom, "") > 0 {
 		args = append(args, "--pdf-page-margin-bottom", this.Config.MarginBottom)
 	}
 
@@ -563,7 +626,7 @@ func (this *Converter) convertToPdf() (err error) {
 		args = append(args, this.Config.More...)
 	}
 
-	cmd := exec.Command(ebookConvert, args...)
+	cmd := newEbookConvertCommand(args...)
 	if this.Debug {
 		fmt.Println(cmd.Args)
 	}
@@ -574,8 +637,8 @@ func (this *Converter) convertToPdf() (err error) {
 // 转成word
 func (this *Converter) convertToDocx() (err error) {
 	args := []string{
-		filepath.Join(this.OutputPath , "content.epub"),
-		filepath.Join(this.OutputPath , output , "book.docx"),
+		filepath.Join(this.OutputPath, "content.epub"),
+		filepath.Join(this.OutputPath, output, "book.docx"),
 	}
 	args = append(args, "--docx-no-toc")
 
@@ -596,7 +659,7 @@ func (this *Converter) convertToDocx() (err error) {
 	if len(this.Config.MarginBottom) > 0 {
 		args = append(args, "--docx-page-margin-bottom", this.Config.MarginBottom)
 	}
-	cmd := exec.Command(ebookConvert, args...)
+	cmd := newEbookConvertCommand(args...)
 
 	if this.Debug {
 		fmt.Println(cmd.Args)
@@ -604,25 +667,3 @@ func (this *Converter) convertToDocx() (err error) {
 	fmt.Println("正在转换 DOCX 文件", args[0])
 	return cmd.Run()
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
