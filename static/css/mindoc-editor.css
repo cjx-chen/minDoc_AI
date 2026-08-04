@@ -1,0 +1,391 @@
+/* MinDoc markdown editor UI, aligned with the refreshed design system. */
+:root {
+    --editor-bg: #f5f7f8;
+    --editor-card: #ffffff;
+    --editor-ink: #1f2329;
+    --editor-sub: #646a73;
+    --editor-muted: #8f959e;
+    --editor-line: #e5e6eb;
+    --editor-green: #009a61;
+    --editor-green-dark: #00794c;
+    --editor-green-tint: #e7f6f0;
+    --editor-radius: 10px;
+    --editor-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+body {
+    font-family: var(--editor-font);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   顶部工具栏
+   ========================================================================== */
+.manual-editor .manual-head {
+    height: 48px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--editor-line);
+    background: rgba(255, 255, 255, .98);
+    box-shadow: 0 1px 8px rgba(31, 35, 41, .04);
+    box-sizing: border-box;
+}
+
+.manual-editor .editormd-group {
+    height: 32px;
+    margin-right: 8px;
+}
+
+.manual-editor .editormd-group a > i {
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 32px;
+    border: 1px solid var(--editor-line);
+    background: #fff;
+    color: var(--editor-sub);
+    font-size: 14px;
+    transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+}
+
+.manual-editor .editormd-group a > i.first {
+    border-radius: 8px 0 0 8px;
+    border-right: 0;
+}
+
+.manual-editor .editormd-group a > i.item {
+    border-radius: 0;
+    border-right: 0;
+}
+
+.manual-editor .editormd-group a > i.last {
+    border-radius: 0 8px 8px 0;
+}
+
+.manual-editor .editormd-group a > i:only-of-type,
+.manual-editor .editormd-group a:only-child > i {
+    border-radius: 8px;
+    border-right: 1px solid var(--editor-line);
+}
+
+.manual-editor .editormd-group a i:hover {
+    border-color: var(--editor-green);
+    background: var(--editor-green-tint);
+    color: var(--editor-green-dark);
+    position: relative;
+    z-index: 1;
+}
+
+.manual-editor .editormd-group a.disabled i:hover {
+    background: #fff !important;
+    border-color: var(--editor-line);
+    color: var(--editor-sub);
+}
+
+.manual-editor .editormd-group .change i {
+    border-color: var(--editor-green) !important;
+    background: var(--editor-green) !important;
+    color: #fff;
+}
+
+.manual-editor .editormd-group .change i:hover {
+    background: var(--editor-green-dark) !important;
+    color: #fff;
+}
+
+/* 工具栏 tooltip 微调 */
+.manual-editor .tooltip-inner {
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+/* ==========================================================================
+   左侧目录面板
+   ========================================================================== */
+.manual-editor .manual-category {
+    top: 48px;
+    width: 280px;
+    border-top: 0;
+    border-right: 1px solid var(--editor-line);
+    background: #fff;
+}
+
+.manual-editor .manual-category .manual-nav {
+    height: 46px;
+    padding: 7px 8px;
+    border-bottom: 1px solid var(--editor-line);
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.manual-editor .manual-category .manual-nav .nav-item {
+    height: 32px;
+    line-height: 32px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 7px;
+    color: var(--editor-sub);
+    font-size: 13px;
+    font-weight: 400;
+    transition: color .15s ease, background-color .15s ease;
+}
+
+.manual-editor .manual-category .manual-nav .nav-item.active {
+    margin-bottom: 0;
+    padding-left: 12px;
+    padding-right: 12px;
+    border: 0;
+    background: var(--editor-green-tint);
+    color: var(--editor-green-dark);
+    font-weight: 500;
+}
+
+.manual-editor .manual-category .manual-nav .nav-plus {
+    height: 32px;
+    width: 32px;
+    line-height: 32px;
+    margin-top: 0;
+    border-radius: 7px;
+    color: var(--editor-muted);
+    text-align: center;
+    transition: color .15s ease, background-color .15s ease;
+}
+
+.manual-editor .manual-category .manual-nav .nav-plus:hover {
+    background: var(--editor-green-tint);
+    color: var(--editor-green-dark);
+}
+
+.manual-editor .manual-category .manual-tree {
+    top: 46px;
+    padding: 10px 8px 24px;
+    box-sizing: border-box;
+}
+
+/* 目录树节点（复用阅读页交互：整行 hover / 选中绿底竖条） */
+.manual-editor .manual-tree .jstree-node {
+    min-height: 34px;
+    line-height: 34px;
+}
+
+.manual-editor .manual-tree .jstree-anchor,
+.manual-editor .manual-tree .jstree-anchor:link,
+.manual-editor .manual-tree .jstree-anchor:visited {
+    height: auto;
+    min-height: 34px;
+    line-height: 34px;
+    padding-top: 0;
+    padding-bottom: 0;
+    color: var(--editor-sub);
+    box-shadow: none;
+    vertical-align: middle;
+    transition: color .15s ease, background-color .15s ease;
+}
+
+.manual-editor .manual-tree .jstree-anchor:hover {
+    background: transparent;
+    color: var(--editor-ink);
+}
+
+.manual-editor .manual-tree .jstree-wholerow {
+    height: 34px;
+    line-height: 34px;
+    border-radius: 7px;
+    transition: background-color .15s ease;
+}
+
+.manual-editor .manual-tree .jstree-wholerow-hovered,
+.manual-editor .manual-tree li:hover > .jstree-wholerow {
+    background: #f1f4f3 !important;
+}
+
+.manual-editor .manual-tree .jstree-anchor.jstree-hovered,
+.manual-editor .manual-tree .jstree-hovered,
+.manual-editor .manual-tree .jstree-anchor.jstree-hovered *,
+.manual-editor .manual-tree .jstree-wholerow-hovered {
+    color: var(--editor-ink) !important;
+}
+
+.manual-editor .manual-tree .jstree-wholerow-clicked,
+.manual-editor .manual-tree .jstree-wholerow-clicked.jstree-wholerow-hovered,
+.manual-editor .manual-tree .jstree-wholerow-clicked:hover {
+    background: var(--editor-green-tint) !important;
+    box-shadow: inset 3px 0 0 var(--editor-green);
+}
+
+.manual-editor .manual-tree .jstree-anchor.jstree-clicked,
+.manual-editor .manual-tree .jstree-clicked {
+    background: transparent !important;
+    color: var(--editor-green-dark) !important;
+    font-weight: 500;
+    box-shadow: none;
+}
+
+.manual-editor .manual-tree .jstree-anchor.jstree-clicked *,
+.manual-editor .manual-tree .jstree-clicked * {
+    color: var(--editor-green-dark) !important;
+}
+
+.manual-editor .manual-tree .jstree-icon:empty {
+    color: var(--editor-muted);
+}
+
+/* ==========================================================================
+   编辑区容器与状态栏
+   ========================================================================== */
+.manual-editor .manual-editor-container {
+    top: 48px;
+    border-top: 0;
+    background: var(--editor-bg);
+}
+
+.manual-editor .manual-editor-status {
+    height: 32px;
+    line-height: 32px;
+    border-top: 1px solid var(--editor-line);
+    border-left: 0;
+    background: #fff;
+    color: var(--editor-muted);
+    font-size: 12px;
+}
+
+.manual-editor .manual-editor-status .item {
+    margin-right: 12px;
+    margin-left: 12px;
+    transition: color .15s ease;
+}
+
+.manual-editor .manual-editor-status .item:hover {
+    color: var(--editor-green-dark);
+}
+
+/* editormd 编辑器本体微调 */
+.manual-editor .editormd {
+    border: 0;
+    border-radius: 0;
+}
+
+.manual-editor .editormd .CodeMirror {
+    font-family: "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.manual-editor .editormd-preview-container,
+.manual-editor .editormd-html-preview {
+    font-family: var(--editor-font);
+    font-size: 15px;
+    line-height: 1.8;
+    color: #2b3037;
+}
+
+/* ==========================================================================
+   弹窗
+   ========================================================================== */
+.manual-editor .modal-content,
+.modal .modal-content {
+    border: 1px solid var(--editor-line);
+    border-radius: 12px;
+    box-shadow: 0 18px 48px rgba(31, 35, 41, .16);
+}
+
+.modal .modal-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--editor-line);
+}
+
+.modal .modal-header .modal-title {
+    color: var(--editor-ink);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.modal .modal-body {
+    padding: 18px 20px;
+}
+
+.modal .modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--editor-line);
+}
+
+.modal .form-control {
+    height: 38px;
+    border-color: var(--editor-line);
+    border-radius: 8px;
+    box-shadow: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.modal textarea.form-control {
+    height: auto;
+}
+
+.modal .form-control:focus {
+    border-color: var(--editor-green);
+    box-shadow: 0 0 0 3px rgba(0, 154, 97, .1);
+}
+
+.modal .btn {
+    border-radius: 8px;
+    box-shadow: none;
+    transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+
+.modal .btn-default {
+    border-color: var(--editor-line);
+    background: #fff;
+    color: var(--editor-sub);
+}
+
+.modal .btn-default:hover {
+    border-color: var(--editor-green);
+    background: var(--editor-green-tint);
+    color: var(--editor-green-dark);
+}
+
+.modal .btn-primary {
+    border-color: var(--editor-green);
+    background: var(--editor-green);
+    color: #fff;
+}
+
+.modal .btn-primary:hover,
+.modal .btn-primary:focus {
+    border-color: var(--editor-green-dark);
+    background: var(--editor-green-dark);
+}
+
+/* 模板选择弹窗卡片 */
+#documentTemplateModal .section {
+    border: 1px solid var(--editor-line);
+    border-radius: 10px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+#documentTemplateModal .section:hover {
+    border-color: var(--editor-green);
+    box-shadow: 0 6px 18px rgba(0, 154, 97, .1);
+}
+
+/* ==========================================================================
+   滚动条
+   ========================================================================== */
+.manual-editor .manual-category::-webkit-scrollbar,
+.manual-editor .manual-tree::-webkit-scrollbar {
+    width: 8px;
+}
+
+.manual-editor .manual-category::-webkit-scrollbar-thumb,
+.manual-editor .manual-tree::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background: #d3d9dd;
+}
+
+.manual-editor .manual-category::-webkit-scrollbar-thumb:hover,
+.manual-editor .manual-tree::-webkit-scrollbar-thumb:hover {
+    background: #b6bfc5;
+}
+
+.manual-editor .manual-category::-webkit-scrollbar-track,
+.manual-editor .manual-tree::-webkit-scrollbar-track {
+    background: transparent;
+}
