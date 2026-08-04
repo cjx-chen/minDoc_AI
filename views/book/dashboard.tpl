@@ -12,6 +12,8 @@
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
 
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/project-dashboard.css" "version"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -22,7 +24,7 @@
 <body>
 <div class="manual-reader">
     {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body ui-project-dashboard">
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
@@ -60,7 +62,20 @@
                     <div class="dashboard">
                         <div class="pull-left" style="width: 200px;margin-bottom: 15px;">
                             <div class="book-image">
+                                {{if ne .Model.Cover (cdnimg "static/images/book.jpg")}}
                                 <img src="{{cdnimg .Model.Cover}}" onerror="this.src='{{cdnimg "/static/images/book.jpg"}}'" style="border: 1px solid #666;width: 175px;">
+                                {{else}}
+                                <span class="cover-fallback" aria-hidden="true" data-name="{{.Model.BookName}}">
+                                    <svg class="cover-fallback-icon" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="16" y="12" width="44" height="56" rx="5" transform="rotate(-6 16 12)" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.4)" stroke-width="2"/>
+                                        <path d="M30 8h30l12 12v48a4 4 0 0 1-4 4H30a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="rgba(255,255,255,.75)" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+                                        <path d="M60 8v12h12" fill="rgba(255,255,255,.55)" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+                                        <line x1="35" y1="31" x2="60" y2="31" stroke="#0a6b4a" stroke-width="3.5" stroke-linecap="round" opacity=".4"/>
+                                        <line x1="35" y1="41" x2="60" y2="41" stroke="#0a6b4a" stroke-width="3.5" stroke-linecap="round" opacity=".22"/>
+                                    </svg>
+                                    <span class="cover-fallback-name">{{.Model.BookName}}</span>
+                                </span>
+                                {{end}}
                             </div>
                         </div>
 

@@ -1,0 +1,380 @@
+/* Project settings page, extending the shared MinDoc UI language. */
+.ui-project-setting {
+    --setting-line-soft: #f0f1f2;
+    padding-top: 28px;
+    padding-bottom: 52px;
+}
+
+.ui-project-setting .page-right > .m-box {
+    margin-bottom: 0;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 1px 2px rgba(31, 35, 41, .04), 0 8px 24px rgba(31, 35, 41, .06);
+}
+
+.ui-project-setting .page-right > .m-box .box-head {
+    min-height: 66px;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--ui-line);
+}
+
+.ui-project-setting .page-right > .m-box .box-title {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ui-ink);
+}
+
+.ui-project-setting .page-right > .m-box .box-title::before {
+    content: "";
+    width: 4px;
+    height: 18px;
+    margin-right: 10px;
+    border-radius: 4px;
+    background: var(--ui-green);
+}
+
+.ui-project-setting .box-head .btn {
+    height: 34px;
+    margin-top: 0;
+    padding: 6px 12px;
+    border-radius: 7px;
+}
+
+.ui-project-setting .box-head .btn-danger {
+    border-color: #f1d5d5;
+    background: #fff7f7;
+    color: #c43e3e;
+}
+
+.ui-project-setting .box-head .btn-danger:hover,
+.ui-project-setting .box-head .btn-danger:focus {
+    border-color: #df6b6b;
+    background: #fff0f0;
+    color: #a92727;
+}
+
+.ui-project-setting .page-right > .box-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 170px;
+    gap: 42px;
+    padding: 30px 32px 34px;
+    border-radius: 0 0 12px 12px;
+    background: var(--ui-card);
+    box-shadow: 0 10px 26px rgba(31, 35, 41, .06);
+}
+
+.ui-project-setting .form-left,
+.ui-project-setting .form-right {
+    float: none;
+    width: auto;
+}
+
+.ui-project-setting .form-left {
+    min-width: 0;
+}
+
+.ui-project-setting .form-left .form-group {
+    margin: 0;
+    padding: 0 0 22px;
+}
+
+.ui-project-setting .form-left .form-group + .form-group {
+    padding-top: 22px;
+    border-top: 1px solid var(--setting-line-soft);
+}
+
+.ui-project-setting .form-left .form-group > label {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--ui-ink);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.ui-project-setting .form-control {
+    height: 42px;
+    border-color: var(--ui-line);
+    border-radius: 7px;
+    background-color: #fff;
+    box-shadow: none;
+}
+
+.ui-project-setting textarea.form-control {
+    min-height: 104px;
+    padding-top: 10px;
+    resize: vertical;
+}
+
+.ui-project-setting .form-control:focus,
+.ui-project-setting .select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: var(--ui-green);
+    box-shadow: 0 0 0 3px rgba(0, 154, 97, .1);
+}
+
+.ui-project-setting .form-control[disabled] {
+    border-color: #eceef0;
+    background: #f7f8f9;
+    color: var(--ui-muted);
+}
+
+.ui-project-setting .form-group .text {
+    margin: 8px 0 0;
+    color: var(--ui-muted);
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.ui-project-setting .form-group > .radio {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin: 0;
+}
+
+.ui-project-setting .form-group > .radio .radio-inline {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    margin: 0;
+    padding: 8px 14px 8px 16px !important;
+    border: 1px solid var(--ui-line);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--ui-sub);
+    font-weight: 400;
+    cursor: pointer;
+    transition: border-color .15s ease, color .15s ease, background-color .15s ease;
+}
+
+.ui-project-setting .form-group > .radio .radio-inline:hover {
+    border-color: rgba(0, 154, 97, .45);
+    background: var(--ui-green-tint);
+    color: var(--ui-green-dark);
+}
+
+.ui-project-setting .form-group > .radio .radio-inline input {
+    margin: 0 7px 0 0;
+}
+
+.ui-project-setting .controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    min-height: 30px;
+}
+
+.ui-project-setting .controls .text {
+    flex-basis: 100%;
+    margin-top: 0;
+}
+
+.ui-project-setting .bootstrap-switch {
+    border-color: var(--ui-line);
+    border-radius: 16px;
+    box-shadow: none;
+}
+
+.ui-project-setting .bootstrap-switch .bootstrap-switch-primary,
+.ui-project-setting .bootstrap-switch .bootstrap-switch-info {
+    background: var(--ui-green);
+}
+
+.ui-project-setting #btnSaveBookInfo {
+    min-width: 112px;
+    height: 40px;
+    padding: 9px 24px;
+    border-radius: 7px;
+}
+
+.ui-project-setting .form-right {
+    align-self: start;
+    position: sticky;
+    top: 82px;
+    transform: translateX(-24px);
+    padding: 18px 14px;
+    border: 1px solid var(--ui-line);
+    border-radius: 10px;
+    background: #fafbfb;
+    text-align: center;
+}
+
+.ui-project-setting .form-right label {
+    display: block;
+    margin: 0;
+}
+
+.ui-project-setting .form-right a {
+    display: inline-block;
+    border-radius: 10px;
+    outline: none;
+}
+
+.ui-project-setting .form-right a:focus-visible {
+    box-shadow: 0 0 0 3px rgba(0, 154, 97, .15);
+}
+
+.ui-project-setting .form-right #headimgurl {
+    display: block;
+    width: 132px;
+    max-width: 132px !important;
+    height: 176px;
+    max-height: 176px !important;
+    border: 1px solid var(--ui-line) !important;
+    border-radius: 9px;
+    object-fit: cover;
+    background: #fff;
+    box-shadow: 0 5px 16px rgba(31, 35, 41, .08);
+    transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.ui-project-setting .form-right a:hover #headimgurl {
+    transform: translateY(-2px);
+    box-shadow: 0 9px 22px rgba(31, 35, 41, .12);
+}
+
+.ui-project-setting .form-right .text {
+    margin: 11px 0 0;
+    color: var(--ui-muted);
+    font-size: 12px;
+}
+
+.ui-project-setting .select2-container--default .select2-selection--multiple {
+    min-height: 42px;
+    padding: 4px 6px;
+    border-color: var(--ui-line);
+    border-radius: 7px;
+}
+
+.ui-project-setting .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    border: 0;
+    border-radius: 5px;
+    background: var(--ui-green-tint);
+    color: var(--ui-green-dark);
+}
+
+.ui-project-setting + .footer,
+.manual-reader > .footer {
+    color: var(--ui-muted);
+}
+
+@media (max-width: 991px) {
+    .ui-project-setting .page-right > .box-body {
+        grid-template-columns: minmax(0, 1fr) 150px;
+        gap: 26px;
+        padding: 26px 24px 30px;
+    }
+
+    .ui-project-setting .form-right #headimgurl {
+        width: 118px;
+        height: 157px;
+    }
+}
+
+@media (max-width: 767px) {
+    .ui-project-setting {
+        padding-top: 16px;
+    }
+
+    .ui-project-setting .page-right > .m-box .box-head {
+        padding: 15px 16px;
+    }
+
+    .ui-project-setting .box-head .btn {
+        margin-top: 6px;
+        margin-left: 5px;
+    }
+
+    .ui-project-setting .page-right > .box-body {
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 22px;
+        padding: 22px 18px 28px;
+    }
+
+    .ui-project-setting .form-right {
+        position: static;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transform: none;
+        padding: 14px;
+        text-align: left;
+    }
+
+    .ui-project-setting .form-right #headimgurl {
+        width: 76px;
+        height: 101px;
+    }
+
+    .ui-project-setting .form-right .text {
+        margin: 0;
+    }
+
+    .ui-project-setting .form-group > .radio {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 封面上传裁剪预览：与概要页 3:4 封面比例保持一致 */
+.ui-project-setting .img-preview {
+    border-radius: 7px;
+}
+
+.ui-project-setting .preview-lg {
+    width: 120px;
+    height: 160px;
+}
+
+.ui-project-setting .preview-sm {
+    width: 60px;
+    height: 80px;
+}
+
+/* 默认封面（无封面时）：与首页卡片默认封面一致的品牌绿渐变 + 项目名 */
+.ui-project-setting .form-right #headimgurl.cover-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 14px;
+    background:
+        radial-gradient(120% 90% at 12% 8%, rgba(255, 255, 255, .18) 0%, rgba(255, 255, 255, 0) 50%),
+        linear-gradient(155deg, #0f9d63 0%, #0a7a4e 45%, #06593a 100%);
+}
+
+.ui-project-setting .form-right #headimgurl.cover-fallback .cover-fallback-icon {
+    flex: none;
+    width: 26px;
+    height: 30px;
+    margin-bottom: 12px;
+    opacity: .9;
+}
+
+.ui-project-setting .form-right #headimgurl.cover-fallback .cover-fallback-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.45;
+    text-align: center;
+    word-break: break-all;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, .18);
+    max-width: 100%;
+}
+
+.ui-project-setting .form-right #headimgurl.cover-fallback::after {
+    content: "";
+    flex: none;
+    width: 24px;
+    height: 2px;
+    margin-top: 12px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, .5);
+}

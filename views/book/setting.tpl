@@ -16,12 +16,14 @@
     <link href="{{cdncss "/static/bootstrap/plugins/bootstrap-switch/css/bootstrap3//bootstrap-switch.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/select2/4.0.5/css/select2.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/project-setting.css" "version"}}" rel="stylesheet">
 
 </head>
 <body>
 <div class="manual-reader">
     {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body ui-project-setting">
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
@@ -48,7 +50,7 @@
 
                     </div>
                 </div>
-                <div class="box-body" style="padding-right: 200px;">
+                <div class="box-body">
                     <div class="form-left">
                         <form method="post" id="bookEditForm" action="{{urlfor "BookController.SaveBook"}}">
                             <input type="hidden" name="identify" value="{{.Model.Identify}}">
@@ -84,40 +86,31 @@
                             </div>
                             <div class="form-group">
                                 <label>{{i18n $.Lang "blog.text_editor"}}</label>
-                                <div class="radio">
-                                    <label class="radio-inline">
-                                        <input type="radio"{{if eq .Model.Editor "markdown"}} checked{{end}} name="editor" value="markdown"> Markdown {{i18n $.Lang "blog.text_editor"}}
+                                <div class="radio" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin: 10px 0 0;">
+                                    <label class="radio-inline" style="display: inline-flex; align-items: center; gap: 8px; margin: 0; padding-left: 0; line-height: 1.5;">
+                                        <input type="radio"{{if eq .Model.Editor "markdown"}} checked{{end}} name="editor" value="markdown" style="position: static; margin: 0; flex: 0 0 auto;"> Markdown {{i18n $.Lang "blog.text_editor"}}
                                     </label>
-                                    <label class="radio-inline">
-                                        <input type="radio"{{if eq .Model.Editor "cherry_markdown"}} checked{{end}} name="editor" value="cherry_markdown"> Markdown {{i18n $.Lang "blog.text_editor"}}(cherry)
+                                    <label class="radio-inline" style="display: inline-flex; align-items: center; gap: 8px; margin: 0; padding-left: 0; line-height: 1.5;">
+                                        <input type="radio"{{if eq .Model.Editor "cherry_markdown"}} checked{{end}} name="editor" value="cherry_markdown" style="position: static; margin: 0; flex: 0 0 auto;"> Markdown {{i18n $.Lang "blog.text_editor"}}(cherry)
                                     </label>
-                                    <label class="radio-inline">
-                                        <input type="radio"{{if eq .Model.Editor "new_html"}} checked{{end}} name="editor" value="new_html"> Html {{i18n $.Lang "blog.text_editor"}}(Quill)
+                                    <label class="radio-inline" style="display: inline-flex; align-items: center; gap: 8px; margin: 0; padding-left: 0; line-height: 1.5;">
+                                        <input type="radio"{{if eq .Model.Editor "new_html"}} checked{{end}} name="editor" value="new_html" style="position: static; margin: 0; flex: 0 0 auto;"> Html {{i18n $.Lang "blog.text_editor"}}(Quill)
                                     </label>
-                                    <label class="radio-inline">
-                                        <input type="radio"{{if eq .Model.Editor "html"}} checked{{end}} name="editor" value="html"> Html {{i18n $.Lang "blog.text_editor"}}(wangEditor)
+                                    <label class="radio-inline" style="display: inline-flex; align-items: center; gap: 8px; margin: 0; padding-left: 0; line-height: 1.5;">
+                                        <input type="radio"{{if eq .Model.Editor "html"}} checked{{end}} name="editor" value="html" style="position: static; margin: 0; flex: 0 0 auto;"> Html {{i18n $.Lang "blog.text_editor"}}(wangEditor)
                                     </label>
                     <!-- 3xxx 20240603 -->
-                    <label class="radio-inline">
-                      <input type="radio" {{if eq .Model.Editor "froala"}} checked{{end}} name="editor" value="froala"> Froala {{i18n $.Lang "blog.text_editor"}}
+                    <label class="radio-inline" style="display: inline-flex; align-items: center; gap: 8px; margin: 0; padding-left: 0; line-height: 1.5;">
+                      <input type="radio" {{if eq .Model.Editor "froala"}} checked{{end}} name="editor" value="froala" style="position: static; margin: 0; flex: 0 0 auto;"> Froala {{i18n $.Lang "blog.text_editor"}}
                     </label>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label>评论</label>
-                                <div class="radio">
-                                    <label class="radio-inline">
-                                        <input type="radio"{{if eq .Model.CommentStatus "closed"}} checked{{end}} name="comment_status" value="closed"> 关闭评论
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio"{{if eq .Model.CommentStatus "open"}} checked{{end}} name="comment_status" value="open"> 开启评论
-                                    </label>
-                                    <!--label class="radio-inline">
-                                        <input type="radio"{{if eq .Model.CommentStatus "registered_only"}} checked{{end}} name="comment_status" value="registered_only"> 注册用户可见
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio"{{if eq .Model.CommentStatus "group_only"}} checked{{end}} name="comment_status" value="group_only"> 成员可见
-                                    </label-->
+                                <label for="commentStatus">评论</label>
+                                <div class="controls">
+                                    <div class="switch switch-small" data-on="primary" data-off="info">
+                                        <input type="checkbox" id="commentStatus" name="comment_status" value="open"{{if eq .Model.CommentStatus "open"}} checked{{end}} data-size="small">
+                                    </div>
                                 </div>
                             </div>
                 {{if eq .Model.PrivatelyOwned 1}}
@@ -191,7 +184,20 @@
             <div class="form-right">
                 <label>
                     <a href="javascript:;" data-toggle="modal" data-target="#upload-logo-panel">
+                        {{if ne .Model.Cover (cdnimg "static/images/book.jpg")}}
                         <img src="{{cdnimg .Model.Cover}}" onerror="this.src='{{cdnimg "/static/images/book.png"}}'" alt="{{i18n $.Lang "blog.cover"}}" style="max-width: 120px;border: 1px solid #999" id="headimgurl">
+                        {{else}}
+                        <span class="cover-fallback" id="headimgurl" aria-hidden="true" data-name="{{.Model.BookName}}">
+                            <svg class="cover-fallback-icon" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="16" y="12" width="44" height="56" rx="5" transform="rotate(-6 16 12)" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.4)" stroke-width="2"/>
+                                <path d="M30 8h30l12 12v48a4 4 0 0 1-4 4H30a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill="rgba(255,255,255,.75)" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+                                <path d="M60 8v12h12" fill="rgba(255,255,255,.55)" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+                                <line x1="35" y1="31" x2="60" y2="31" stroke="#0a6b4a" stroke-width="3.5" stroke-linecap="round" opacity=".4"/>
+                                <line x1="35" y1="41" x2="60" y2="41" stroke="#0a6b4a" stroke-width="3.5" stroke-linecap="round" opacity=".22"/>
+                            </svg>
+                            <span class="cover-fallback-name">{{.Model.BookName}}</span>
+                        </span>
+                        {{end}}
                     </a>
                 </label>
                 <p class="text">{{i18n $.Lang "blog.click_change_cover"}}</p>
@@ -348,7 +354,7 @@
         }).on("show.bs.modal",function () {
             window.modalHtml = $("#upload-logo-panel").find(".modal-body").html();
         });
-        $("#autoRelease,#enableShare,#isDownload,#isUseFirstDocument,#autoSave").bootstrapSwitch();
+        $("#autoRelease,#enableShare,#isDownload,#isUseFirstDocument,#autoSave,#commentStatus").bootstrapSwitch();
 
         $('input[name="label"]').tagsinput({
             confirmKeys: [13,44],
@@ -508,7 +514,7 @@
 
                     $("#image-wraper").html($img);
                     window.ImageCropper = $('#image-wraper>img').cropper({
-                        aspectRatio: 175 / 230,
+                        aspectRatio: 3 / 4,
                         dragMode : 'move',
                         viewMode : 1,
                         preview : ".img-preview"
@@ -523,7 +529,12 @@
                 if(res.errcode === 0){
                     console.log(res);
                     $("#upload-logo-panel").modal('hide');
-                    $("#headimgurl").attr('src',res.data);
+                    var $cover = $("#headimgurl");
+                    if ($cover.is("span")) {
+                        $cover.replaceWith('<img src="' + res.data + '" alt="封面" id="headimgurl">');
+                    } else {
+                        $cover.attr('src', res.data);
+                    }
                 }else{
                     $("#error-message").text(res.message);
                 }

@@ -1,0 +1,249 @@
+/* Project members and teams management pages. */
+.ui-project-people {
+    padding-top: 28px;
+    padding-bottom: 52px;
+}
+
+.ui-project-people .page-right > .m-box {
+    margin-bottom: 0;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 1px 2px rgba(31, 35, 41, .04), 0 8px 24px rgba(31, 35, 41, .06);
+}
+
+.ui-project-people .page-right > .m-box .box-head {
+    min-height: 66px;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--ui-line);
+}
+
+.ui-project-people .page-right > .m-box .box-title {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    color: var(--ui-ink);
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.ui-project-people .page-right > .m-box .box-title::before {
+    content: "";
+    width: 4px;
+    height: 18px;
+    margin-right: 10px;
+    border-radius: 4px;
+    background: var(--ui-green);
+}
+
+.ui-project-people .box-head .btn-success {
+    height: 34px;
+    padding: 6px 13px;
+    border-radius: 7px;
+}
+
+.ui-project-people .box-head .btn-success i {
+    margin-right: 4px;
+}
+
+.ui-project-people .page-right > .box-body {
+    min-height: 280px;
+    padding: 16px 24px 28px;
+    border-radius: 0 0 12px 12px;
+    background: var(--ui-card);
+    box-shadow: 0 10px 26px rgba(31, 35, 41, .06);
+}
+
+.ui-project-people .users-list > .text-center {
+    margin: 70px 0;
+    color: var(--ui-muted);
+    font-size: 14px;
+}
+
+/* Member rows */
+.ui-project-people .users-list .list-item {
+    display: flex;
+    align-items: center;
+    min-height: 66px;
+    padding: 12px 10px;
+    border-bottom: 1px solid #f0f1f2;
+    color: var(--ui-sub);
+    transition: background-color .15s ease;
+}
+
+.ui-project-people .users-list .list-item:hover {
+    border-radius: 8px;
+    background: #fafbfb;
+}
+
+.ui-project-people .users-list .list-item > img {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+    border: 2px solid #fff;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px var(--ui-line);
+}
+
+.ui-project-people .users-list .list-item > span:first-of-type {
+    color: var(--ui-ink);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.ui-project-people .users-list .list-item .operate {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: auto;
+    color: var(--ui-muted);
+}
+
+.ui-project-people .users-list .list-item .operate .btn {
+    height: 32px;
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+
+.ui-project-people .users-list .list-item .operate .btn-default {
+    border-color: var(--ui-line);
+    background: #fff;
+    color: var(--ui-sub);
+}
+
+.ui-project-people .users-list .list-item .operate .btn-danger,
+.ui-project-people .table .btn-danger {
+    border-color: #f1d5d5;
+    background: #fff7f7;
+    color: #c43e3e;
+}
+
+.ui-project-people .users-list .list-item .operate .btn-danger:hover,
+.ui-project-people .table .btn-danger:hover {
+    border-color: #df6b6b;
+    background: #fff0f0;
+    color: #a92727;
+}
+
+.ui-project-people .dropdown-menu {
+    padding: 6px;
+    border-color: var(--ui-line);
+    border-radius: 8px;
+    box-shadow: var(--ui-shadow-md);
+}
+
+.ui-project-people .dropdown-menu > li > a {
+    padding: 8px 10px;
+    border-radius: 6px;
+    color: var(--ui-sub);
+}
+
+.ui-project-people .dropdown-menu > li > a:hover {
+    background: var(--ui-green-tint);
+    color: var(--ui-green-dark);
+}
+
+/* Team table */
+.ui-project-people .table {
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.ui-project-people .table > thead > tr > th {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--ui-line);
+    background: #f7f9f8;
+    color: var(--ui-muted);
+    font-size: 12px;
+    font-weight: 500;
+    vertical-align: middle;
+}
+
+.ui-project-people .table > thead > tr > th:first-child {
+    border-radius: 8px 0 0 8px;
+}
+
+.ui-project-people .table > thead > tr > th:last-child {
+    border-radius: 0 8px 8px 0;
+}
+
+.ui-project-people .table > tbody > tr > td {
+    padding: 15px 14px;
+    border-top: 0;
+    border-bottom: 1px solid #f0f1f2;
+    color: var(--ui-sub);
+    vertical-align: middle;
+}
+
+.ui-project-people .table > tbody > tr > td:first-child {
+    color: var(--ui-ink);
+    font-weight: 500;
+}
+
+.ui-project-people .table > tbody > tr:hover > td {
+    background: #fafbfb;
+}
+
+.ui-project-people .table .btn {
+    height: 31px;
+    padding: 5px 11px;
+    border-radius: 6px;
+}
+
+.ui-project-people .pagination-container {
+    margin-top: 22px;
+    text-align: center;
+}
+
+/* Shared member/team modal controls */
+.ui-project-people ~ .modal .modal-content,
+.manual-reader + .modal .modal-content {
+    border: 0;
+    border-radius: 12px;
+    box-shadow: var(--ui-shadow-md);
+}
+
+.ui-project-people .select2-container--default .select2-selection--multiple,
+.modal .select2-container--default .select2-selection--multiple {
+    min-height: 40px;
+    padding: 4px 6px;
+    border-color: var(--ui-line);
+    border-radius: 7px;
+}
+
+.ui-project-people .select2-container--default.select2-container--focus .select2-selection--multiple,
+.modal .select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: var(--ui-green);
+    box-shadow: 0 0 0 3px rgba(0, 154, 97, .1);
+}
+
+@media (max-width: 767px) {
+    .ui-project-people {
+        padding-top: 16px;
+    }
+
+    .ui-project-people .page-right > .m-box .box-head {
+        padding: 15px 16px;
+    }
+
+    .ui-project-people .page-right > .box-body {
+        padding: 12px 14px 24px;
+        overflow-x: auto;
+    }
+
+    .ui-project-people .users-list .list-item {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        padding: 13px 8px;
+    }
+
+    .ui-project-people .users-list .list-item .operate {
+        flex-basis: 100%;
+        margin-top: 10px;
+        margin-left: 52px;
+    }
+
+    .ui-project-people .table {
+        min-width: 680px;
+    }
+}

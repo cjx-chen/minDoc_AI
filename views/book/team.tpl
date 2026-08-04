@@ -13,6 +13,8 @@
     <link href="{{cdncss "/static/select2/4.0.5/css/select2.min.css"}}" rel="stylesheet">
 
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/project-members.css" "version"}}" rel="stylesheet">
 
     <style type="text/css">
         .table > tbody > tr > td {
@@ -23,7 +25,7 @@
 <body>
 <div class="manual-reader">
 {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body ui-project-people">
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
