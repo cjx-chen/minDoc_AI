@@ -1,0 +1,204 @@
+/* Blog create/settings page, aligned with the shared MinDoc UI. */
+.ui-blog-setting {
+    padding-top: 28px;
+    padding-bottom: 52px;
+}
+
+.ui-blog-setting .page-right > .m-box {
+    margin-bottom: 0;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 1px 2px rgba(31, 35, 41, .04), 0 8px 24px rgba(31, 35, 41, .06);
+}
+
+.ui-blog-setting .page-right > .m-box .box-head {
+    min-height: 66px;
+    padding: 16px 26px;
+    border-bottom: 1px solid var(--ui-line);
+}
+
+.ui-blog-setting .page-right > .m-box .box-title {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    color: var(--ui-ink);
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.ui-blog-setting .page-right > .m-box .box-title::before {
+    content: "";
+    width: 4px;
+    height: 18px;
+    margin-right: 10px;
+    border-radius: 4px;
+    background: var(--ui-green);
+}
+
+.ui-blog-setting .page-right > .box-body {
+    padding: 32px 34px 36px;
+    border-radius: 0 0 12px 12px;
+    background: var(--ui-card);
+    box-shadow: 0 10px 26px rgba(31, 35, 41, .06);
+}
+
+.ui-blog-setting #gloablEditForm {
+    max-width: 780px;
+}
+
+.ui-blog-setting #gloablEditForm .form-group {
+    margin: 0;
+    padding: 0 0 23px;
+}
+
+.ui-blog-setting #gloablEditForm .form-group + .form-group {
+    padding-top: 23px;
+    border-top: 1px solid #f0f1f2;
+}
+
+.ui-blog-setting #gloablEditForm .form-group > label {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--ui-ink);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.ui-blog-setting .form-control {
+    height: 42px;
+    border-color: var(--ui-line);
+    border-radius: 7px;
+    background: #fff;
+    box-shadow: none;
+    color: var(--ui-ink);
+}
+
+.ui-blog-setting textarea.form-control {
+    min-height: 116px;
+    padding-top: 10px;
+    line-height: 1.7;
+    resize: vertical;
+}
+
+.ui-blog-setting .form-control:focus {
+    border-color: var(--ui-green);
+    box-shadow: 0 0 0 3px rgba(0, 154, 97, .1);
+}
+
+.ui-blog-setting .form-group .text {
+    margin: 8px 0 0;
+    color: var(--ui-muted);
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.ui-blog-setting .form-group > .radio {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+}
+
+.ui-blog-setting .form-group > .radio .radio-inline {
+    display: inline-flex;
+    align-items: center;
+    min-width: 128px;
+    min-height: 40px;
+    margin: 0;
+    padding: 8px 13px;
+    border: 1px solid var(--ui-line);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--ui-sub);
+    font-weight: 400;
+    cursor: pointer;
+    transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+}
+
+.ui-blog-setting .form-group > .radio .radio-inline:hover {
+    border-color: rgba(0, 154, 97, .45);
+    background: var(--ui-green-tint);
+    color: var(--ui-green-dark);
+}
+
+.ui-blog-setting .form-group > .radio .radio-inline input {
+    position: static;
+    flex: none;
+    width: 14px;
+    height: 14px;
+    margin: 0 8px 0 0;
+}
+
+.ui-blog-setting #blogLinkDocument .row {
+    margin-right: -6px;
+    margin-left: -6px;
+}
+
+.ui-blog-setting #blogLinkDocument .col-sm-6 {
+    padding-right: 6px;
+    padding-left: 6px;
+}
+
+.ui-blog-setting #gloablEditForm .form-group:last-of-type {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 26px;
+    padding-bottom: 0;
+}
+
+.ui-blog-setting #btnSaveBlogInfo,
+.ui-blog-setting #gloablEditForm .btn-info {
+    min-width: 104px;
+    height: 40px;
+    padding: 9px 22px;
+    border-radius: 7px;
+}
+
+.ui-blog-setting #gloablEditForm .btn-info {
+    border-color: var(--ui-line);
+    background: #fff;
+    color: var(--ui-sub);
+}
+
+.ui-blog-setting #gloablEditForm .btn-info:hover,
+.ui-blog-setting #gloablEditForm .btn-info:focus {
+    border-color: var(--ui-green);
+    background: var(--ui-green-tint);
+    color: var(--ui-green-dark);
+}
+
+.ui-blog-setting #form-error-message {
+    color: #c43e3e;
+    font-size: 13px;
+}
+
+@media (max-width: 767px) {
+    .ui-blog-setting {
+        padding-top: 16px;
+    }
+
+    .ui-blog-setting .page-right > .m-box .box-head {
+        padding: 15px 17px;
+    }
+
+    .ui-blog-setting .page-right > .box-body {
+        padding: 24px 18px 28px;
+    }
+
+    .ui-blog-setting .form-group > .radio {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .ui-blog-setting .form-group > .radio .radio-inline {
+        width: 100%;
+    }
+
+    .ui-blog-setting #blogLinkDocument .col-sm-6 + .col-sm-6 {
+        margin-top: 10px;
+    }
+
+    .ui-blog-setting #gloablEditForm .form-group:last-of-type {
+        flex-wrap: wrap;
+    }
+}

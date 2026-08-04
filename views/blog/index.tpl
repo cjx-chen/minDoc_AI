@@ -23,63 +23,19 @@
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/print.css"}}" media="print" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
-    <style type="text/css">
-        .header{
-            min-height: 1rem;
-            font-size: 26px;
-            font-weight: 400;
-            display: block;
-            margin: 20px auto;
-        }
-        .blog-meta{
-            display: inline-block;
-        }
-        .blog-meta>.item{
-            display: inline-block;
-            color: #666666;
-            vertical-align: middle;
-        }
-
-        .blog-footer{
-            margin: 25px auto;
-            /*border-top: 1px solid #E5E5E5;*/
-            padding: 20px 1px;
-            line-height: 35px;
-        }
-        .blog-footer span{
-            margin-right: 8px;
-            padding: 6px 8px;
-            font-size: 12px;
-            border: 1px solid #e3e3e3;
-            color: #4d4d4d
-        }
-        .blog-footer a:hover{
-            color: #ca0c16;
-        }
-        .footer{
-            margin-top: 0;
-        }
-        .user_img img {
-            display: block;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            -o-object-fit: cover;
-            object-fit: cover;
-            overflow: hidden;
-        }
-    </style>
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/blog-detail.css" "version"}}" rel="stylesheet">
 </head>
 <body>
-<div class="manual-reader manual-container manual-search-reader">
+<div class="manual-reader manual-container manual-search-reader ui-blog-detail-shell">
 {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
-        <div class="search-head" style="border-bottom-width: 1px;">
+    <div class="container manual-body ui-blog-detail">
+        <div class="search-head">
             <h1 class="header">
                {{.Model.BlogTitle}}
             </h1>
             <div class="blog-meta">
-                <div class="item user_img"><img src="{{cdnimg .Model.MemberAvatar}}" align="{{.Model.CreateName}}"> </div>
+                <div class="item user_img"><img src="{{cdnimg .Model.MemberAvatar}}" alt="{{.Model.CreateName}}"> </div>
                 <div class="item">&nbsp;{{.Model.CreateName}}</div>
                 <div class="item">{{i18n .Lang "blog.posted_on"}}</div>
                 <div class="item">{{date_format .Model.Created "2006-01-02 15:04:05"}}</div>

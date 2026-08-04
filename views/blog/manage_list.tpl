@@ -13,6 +13,7 @@
     <link href="{{cdncss "/static/bootstrap/plugins/bootstrap-fileinput/4.4.7/css/fileinput.min.css"}}" rel="stylesheet" type="text/css">
     <link href="{{cdncss "/static/bootstrap/plugins/bootstrap-fileinput/4.4.7/themes/explorer-fa/theme.css"}}" rel="stylesheet" type="text/css">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -23,7 +24,7 @@
 <body>
 <div class="manual-reader">
 {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body">
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
@@ -40,7 +41,6 @@
                         <a href="{{urlfor "BlogController.ManageSetting"}}" class="btn btn-success btn-sm pull-right">{{i18n .Lang "blog.add_blog"}}</a>
                         {{end}}
                     </div>
-                </div>
                 <div class="box-body" id="blogList">
                     <div class="ui items">
                         {{range $index,$item := .ModelList}}
@@ -74,6 +74,7 @@
                     <nav class="pagination-container">
                         {{.PageHtml}}
                     </nav>
+                </div>
                 </div>
             </div>
         </div>
