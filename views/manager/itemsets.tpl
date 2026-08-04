@@ -12,11 +12,12 @@
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet" type="text/css">
 
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
 </head>
 <body>
 <div class="manual-reader">
 {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body">
         <div class="row">
         {{template "manager/widgets.tpl" .}}
             <div class="page-right">
@@ -27,7 +28,7 @@
                         <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addItemsetsDialogModal"><i class="fa fa-plus" aria-hidden="true"></i> {{i18n .Lang "mgr.create_proj_space"}}</button>
                     {{end}}
                     </div>
-                </div>
+                
                 <div class="box-body">
                     <div class="attach-list" id="ItemsetsList">
                         <table class="table">
@@ -64,6 +65,7 @@
                         {{.PageHtml}}
                         </nav>
                     </div>
+                </div>
                 </div>
             </div>
         </div>

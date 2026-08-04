@@ -12,6 +12,7 @@
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
 
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -25,7 +26,7 @@
 <body>
 <div class="manual-reader">
     {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body">
         <div class="row">
         {{template "manager/widgets.tpl" .}}
             <div class="page-right">
@@ -36,7 +37,7 @@
                         <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addMemberDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i> {{i18n .Lang "mgr.add_member"}}</button>
                         {{end}}
                     </div>
-                </div>
+                
                 <div class="box-body">
                     <div class="users-list" id="userList">
                         <template v-if="lists.length <= 0">
@@ -119,6 +120,7 @@
                             {{.PageHtml}}
                         </nav>
                     </div>
+                </div>
                 </div>
             </div>
         </div>

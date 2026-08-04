@@ -12,11 +12,12 @@
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/editor.md/css/editormd.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
 </head>
 <body>
 <div class="manual-reader">
 {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body">
         <div class="row">
         {{template "manager/widgets.tpl" .}}
             <div class="page-right">
@@ -24,7 +25,7 @@
                     <div class="box-head">
                         <strong class="box-title"> {{i18n .Lang "mgr.config_mgr"}}</strong>
                     </div>
-                </div>
+                
                 <div class="box-body">
                     <form method="post" id="configFileContainerForm" action="{{urlfor "ManagerController.Config"}}">
                         <div id="configFileContainer">
@@ -39,6 +40,7 @@
 
                     <div class="clearfix"></div>
 
+                </div>
                 </div>
             </div>
         </div>

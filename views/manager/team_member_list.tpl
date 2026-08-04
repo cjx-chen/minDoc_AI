@@ -12,6 +12,7 @@
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/select2/4.0.5/css/select2.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
     <style type="text/css">
         .table>tbody>tr>td{vertical-align: middle;}
     </style>
@@ -19,7 +20,7 @@
 <body>
 <div class="manual-reader">
 {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body">
         <div class="row">
         {{template "manager/widgets.tpl" .}}
             <div class="page-right">
@@ -28,7 +29,7 @@
                         <strong class="box-title">{{.Model.TeamName}} - {{i18n .Lang "mgr.member_mgr"}}</strong>
                         <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addTeamMemberDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i> {{i18n .Lang "mgr.add_member"}}</button>
                     </div>
-                </div>
+                
                 <div class="box-body">
                     <div class="users-list" id="teamMemberList">
                         <template v-if="lists.length <= 0">
@@ -73,6 +74,7 @@
                         {{.PageHtml}}
                         </nav>
                     </div>
+                </div>
                 </div>
             </div>
         </div>

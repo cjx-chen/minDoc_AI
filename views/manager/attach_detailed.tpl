@@ -12,6 +12,7 @@
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet" type="text/css">
 
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -22,7 +23,7 @@
 <body>
 <div class="manual-reader">
     {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body">
         <div class="row">
         {{template "manager/widgets.tpl" .}}
             <div class="page-right">
@@ -30,7 +31,7 @@
                     <div class="box-head">
                         <strong class="box-title">{{i18n .Lang "mgr.attachment_mgr"}}</strong>
                     </div>
-                </div>
+                
                 <div class="box-body">
                 <form>
                     <div class="form-group">
@@ -82,6 +83,7 @@
                         {{end}}
                     </div>
                 </form>
+                </div>
                 </div>
             </div>
         </div>

@@ -14,6 +14,7 @@
     <link href="{{cdncss "/static/bootstrap/plugins/bootstrap-fileinput/4.4.7/themes/explorer-fa/theme.css"}}" rel="stylesheet" type="text/css">
     <link href="{{cdncss "/static/select2/4.0.5/css/select2.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -24,7 +25,7 @@
 <body>
 <div class="manual-reader">
     {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body">
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
@@ -42,7 +43,6 @@
                         <button type="button" data-toggle="modal" data-target="#importBookDialogModal" class="btn btn-primary btn-sm pull-right" style="margin-right: 5px;">{{i18n $.Lang "blog.import_project"}}</button>
                         {{end}}
                     </div>
-                </div>
                 <div class="box-body" id="bookList">
                     <div class="book-list">
                         <template v-if="lists.length <= 0">
@@ -122,6 +122,7 @@
                             {{.PageHtml}}
                         </nav>
                     </template>
+                </div>
                 </div>
             </div>
         </div>
@@ -323,7 +324,7 @@
 <script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     /**
-     * 绘制项目封面
+     * 绘制项目封面（品牌绿渐变 + 文档图标 + 白色项目名，与站点默认封面视觉一致）
      * @param $id
      * @param $font
      */
@@ -332,61 +333,97 @@
         //确认浏览器是否支持<canvas>元素
         if (draw.getContext) {
             var context = draw.getContext('2d');
+            var w = 170, h = 230;
 
-            //绘制红色矩形,绿色描边
-            context.fillStyle = '#eee';
-            context.strokeStyle = '#d4d4d5';
-            context.strokeRect(0,0,170,230);
-            context.fillRect(0,0,170,230);
+            //品牌绿渐变背景
+            var grad = context.createLinearGradient(0, 0, w, h);
+            grad.addColorStop(0, '#0f9d63');
+            grad.addColorStop(0.45, '#0a7a4e');
+            grad.addColorStop(1, '#06593a');
+            context.fillStyle = grad;
+            context.fillRect(0, 0, w, h);
 
-            //设置字体样式
-            context.font = "600 20px Helvetica";
-            context.textAlign = "left";
-            //设置字体填充颜色
-            context.fillStyle = "#3E403E";
+            //左上角高光
+            var glow = context.createRadialGradient(22, 18, 2, 22, 18, 150);
+            glow.addColorStop(0, 'rgba(255,255,255,.18)');
+            glow.addColorStop(1, 'rgba(255,255,255,0)');
+            context.fillStyle = glow;
+            context.fillRect(0, 0, w, h);
 
+            //文档图标
+            context.save();
+            context.translate(70, 48);
+            //背面装饰页
+            context.save();
+            context.translate(3, -3);
+            context.rotate(-0.1);
+            context.fillStyle = 'rgba(255,255,255,.1)';
+            context.strokeStyle = 'rgba(255,255,255,.35)';
+            context.lineWidth = 1.5;
+            context.beginPath();
+            context.roundRect(0, 0, 30, 38, 3);
+            context.fill();
+            context.stroke();
+            context.restore();
+            //前面页
+            context.fillStyle = 'rgba(255,255,255,.8)';
+            context.strokeStyle = '#fff';
+            context.lineWidth = 1.5;
+            context.beginPath();
+            context.roundRect(0, 0, 30, 38, 3);
+            context.fill();
+            context.stroke();
+            //折角
+            context.beginPath();
+            context.moveTo(23, 0);
+            context.lineTo(30, 7);
+            context.lineTo(23, 7);
+            context.closePath();
+            context.fillStyle = 'rgba(255,255,255,.55)';
+            context.fill();
+            //文字行
+            context.strokeStyle = 'rgba(10,107,74,.4)';
+            context.lineWidth = 2;
+            context.lineCap = 'round';
+            context.beginPath(); context.moveTo(6, 16); context.lineTo(24, 16); context.stroke();
+            context.beginPath(); context.moveTo(6, 23); context.lineTo(24, 23); context.stroke();
+            context.restore();
+
+            //项目名（白色居中，最多两行）
             var font = $.trim($font);
-
-            var lineWidth = 0; //当前行的绘制的宽度
-            var lastTextIndex = 0; //已经绘制上canvas最后的一个字符的下标
-            var drawWidth = 155,lineHeight = 25,drawStartX = 15,drawStartY=65;
-            //由于改变canvas 的高度会导致绘制的纹理被清空，所以，不预先绘制，先放入到一个数组当中
-            var arr = [];
-            for(var i = 0; i<font.length; i++){
-                //获取当前的截取的字符串的宽度
-                lineWidth = context.measureText(font.substr(lastTextIndex,i-lastTextIndex)).width;
-
-                if(lineWidth > drawWidth){
-                    //判断最后一位是否是标点符号
-                    if(judgePunctuationMarks(font[i-1])){
-                        arr.push(font.substr(lastTextIndex,i-lastTextIndex));
-                        lastTextIndex = i;
-                    }else{
-                        arr.push(font.substr(lastTextIndex,i-lastTextIndex-1));
-                        lastTextIndex = i-1;
+            context.font = "600 18px Helvetica, 'Microsoft YaHei', 'PingFang SC', sans-serif";
+            context.fillStyle = '#fff';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            var maxW = 138;
+            var line1 = "", line2 = "";
+            if (context.measureText(font).width <= maxW) {
+                line1 = font;
+            } else {
+                for (var i = 0; i < font.length; i++) {
+                    var t = line1 + font.charAt(i);
+                    if (context.measureText(t).width > maxW) {
+                        line2 = font.substr(i);
+                        break;
+                    }
+                    line1 = t;
+                }
+                if (line2 && context.measureText(line2).width > maxW) {
+                    while (line2.length > 1 && context.measureText(line2).width > maxW) {
+                        line2 = line2.substr(0, line2.length - 1);
                     }
                 }
-                //将最后多余的一部分添加到数组
-                if(i === font.length - 1){
-                    arr.push(font.substr(lastTextIndex,i-lastTextIndex+1));
-                }
+            }
+            context.fillText(line1, 85, 132, maxW);
+            if (line2) {
+                context.fillText(line2, 85, 158, maxW);
             }
 
-            for(var i =0; i<arr.length; i++){
-                context.fillText(arr[i],drawStartX,drawStartY+i*lineHeight);
-            }
-
-            //判断是否是需要避开的标签符号
-            function judgePunctuationMarks(value) {
-                var arr = [".",",",";","?","!",":","\"","，","。","？","！","；","：","、"];
-                for(var i = 0; i< arr.length; i++){
-                    if(value === arr[i]){
-                        return true;
-                    }
-                }
-                return false;
-            }
-
+            //底部装饰线
+            context.strokeStyle = 'rgba(255,255,255,.5)';
+            context.lineWidth = 2;
+            context.lineCap = 'round';
+            context.beginPath(); context.moveTo(71, 190); context.lineTo(99, 190); context.stroke();
         }else{
             console.log("浏览器不支持")
         }

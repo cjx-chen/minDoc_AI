@@ -13,6 +13,7 @@
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/cropper/2.3.4/cropper.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -24,13 +25,13 @@
 <body>
 <div class="manual-reader">
     {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body">
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
-                    <li class="active"><a href="{{urlfor "SettingController.Index"}}" class="item"><i class="fa fa-sitemap" aria-hidden="true"></i> {{i18n .Lang "uc.base_info"}}</a> </li>
+                    <li class="active"><a href="{{urlfor "SettingController.Index"}}" class="item"><i class="fa fa-id-card-o" aria-hidden="true"></i> {{i18n .Lang "uc.base_info"}}</a> </li>
                     {{if ne .Member.AuthMethod "ldap"}}
-                    <li><a href="{{urlfor "SettingController.Password"}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> {{i18n .Lang "uc.change_pwd"}}</a> </li>
+                    <li><a href="{{urlfor "SettingController.Password"}}" class="item"><i class="fa fa-lock" aria-hidden="true"></i> {{i18n .Lang "uc.change_pwd"}}</a> </li>
                     {{end}}
                 </ul>
             </div>
@@ -39,43 +40,44 @@
                     <div class="box-head">
                         <strong class="box-title">{{i18n .Lang "uc.base_info"}}</strong>
                     </div>
-                </div>
-                <div class="box-body" style="padding-right: 200px;">
-                    <div class="form-left">
-                        <form role="form" method="post" id="memberInfoForm">
-                            <div class="form-group">
-                                <label>{{i18n .Lang "uc.username"}}</label>
-                                <input type="text" class="form-control disabled" value="{{.Member.Account}}" disabled placeholder="{{i18n .Lang "uc.username"}}">
-                            </div>
-                            <div class="form-group">
-                                <label>{{i18n .Lang "uc.realname"}}</label>
-                                <input type="text" name="real_name" class="form-control" value="{{.Member.RealName}}" placeholder="{{i18n .Lang "uc.realname"}}">
-                            </div>
-                            <div class="form-group">
-                                <label for="user-email">{{i18n .Lang "uc.email"}}<strong class="text-danger">*</strong></label>
-                                <input type="email" class="form-control" value="{{.Member.Email}}" id="userEmail" name="email" max="100" placeholder="{{i18n .Lang "uc.email"}}">
-                            </div>
-                            <div class="form-group">
-                                <label>{{i18n .Lang "uc.mobile"}}</label>
-                                <input type="text" class="form-control" id="userPhone" name="phone" maxlength="20" title="{{i18n .Lang "uc.mobile"}}" placeholder="{{i18n .Lang "uc.mobile"}}" value="{{.Member.Phone}}">
-                            </div>
-                            <div class="form-group">
-                                <label class="description">{{i18n .Lang "uc.description"}}</label>
-                                <textarea class="form-control" rows="3" title="{{i18n .Lang "uc.description"}}" name="description" id="description" maxlength="500">{{.Member.Description}}</textarea>
-                                <p style="color: #999;font-size: 12px;">{{i18n .Lang "uc.description_tips"}}</p>
-                            </div>
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "common.save"}}</button>
-                                <span id="form-error-message" class="error-message"></span>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="form-right">
-                        <label>
-                            <a href="#" onclick="return false;" data-toggle="modal" data-target="#upload-logo-panel">
-                                <img src="{{cdnimg .Member.Avatar}}" onerror="this.src='{{cdnimg "/static/images/headimgurl.jpg"}}'" class="img-circle" alt="{{i18n .Lang "uc.avatar"}}" style="max-width: 120px;max-height: 120px;" id="headimgurl">
-                            </a>
-                        </label>
+                    <div class="box-body" style="padding-right: 200px;">
+                        <div class="form-left">
+                            <form role="form" method="post" id="memberInfoForm">
+                                <div class="form-group">
+                                    <label>{{i18n .Lang "uc.username"}}</label>
+                                    <input type="text" class="form-control disabled" value="{{.Member.Account}}" disabled placeholder="{{i18n .Lang "uc.username"}}">
+                                </div>
+                                <div class="form-group">
+                                    <label>{{i18n .Lang "uc.realname"}}</label>
+                                    <input type="text" name="real_name" class="form-control" value="{{.Member.RealName}}" placeholder="{{i18n .Lang "uc.realname"}}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="user-email">{{i18n .Lang "uc.email"}}<strong class="text-danger">*</strong></label>
+                                    <input type="email" class="form-control" value="{{.Member.Email}}" id="userEmail" name="email" max="100" placeholder="{{i18n .Lang "uc.email"}}">
+                                </div>
+                                <div class="form-group">
+                                    <label>{{i18n .Lang "uc.mobile"}}</label>
+                                    <input type="text" class="form-control" id="userPhone" name="phone" maxlength="20" title="{{i18n .Lang "uc.mobile"}}" placeholder="{{i18n .Lang "uc.mobile"}}" value="{{.Member.Phone}}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="description">{{i18n .Lang "uc.description"}}</label>
+                                    <textarea class="form-control" rows="3" title="{{i18n .Lang "uc.description"}}" name="description" id="description" maxlength="500">{{.Member.Description}}</textarea>
+                                    <p class="help-text">{{i18n .Lang "uc.description_tips"}}</p>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "common.save"}}</button>
+                                    <span id="form-error-message" class="error-message"></span>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="form-right">
+                            <label>
+                                <a href="#" onclick="return false;" data-toggle="modal" data-target="#upload-logo-panel">
+                                    <img src="{{cdnimg .Member.Avatar}}" onerror="this.src='{{cdnimg "/static/images/headimgurl.jpg"}}'" class="img-circle" alt="{{i18n .Lang "uc.avatar"}}" id="headimgurl">
+                                </a>
+                            </label>
+                            <span class="avatar-tip">{{i18n .Lang "uc.change_avatar"}}</span>
+                        </div>
                     </div>
                 </div>
             </div>

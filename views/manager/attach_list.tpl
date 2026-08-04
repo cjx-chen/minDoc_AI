@@ -12,6 +12,7 @@
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet" type="text/css">
 
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -22,7 +23,7 @@
 <body>
 <div class="manual-reader">
     {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body">
         <div class="row">
         {{template "manager/widgets.tpl" .}}
             <div class="page-right">
@@ -31,7 +32,7 @@
                         <strong class="box-title">{{i18n .Lang "mgr.attachment_mgr"}}</strong>
                         <button type="button" data-method="clean" class="btn btn-danger btn-sm" data-loading-text="{{i18n $.Lang "message.processing"}}">{{i18n $.Lang "common.clean"}}</button>
                     </div>
-                </div>
+                
                 <div class="box-body">
                     <div class="attach-list" id="attachList">
                         <table class="table">
@@ -68,6 +69,7 @@
                             {{.PageHtml}}
                         </nav>
                     </div>
+                </div>
                 </div>
             </div>
         </div>

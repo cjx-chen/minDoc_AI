@@ -13,6 +13,7 @@
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -22,20 +23,24 @@
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 </head>
-<body class="manual-container">
-<header class="navbar navbar-static-top smart-nav navbar-fixed-top manual-header" role="banner">
-    <div class="container">
-        <div class="navbar-header col-sm-12 col-md-6 col-lg-5">
-            <a href="{{.BaseUrl}}" class="navbar-brand">{{.SITE_NAME}}</a>
-        </div>
-    </div>
-</header>
-<div class="container manual-body">
-    <div class="row login">
-        <div class="login-body">
+<body class="ui-login-page">
+<div class="ui-login-shell">
+    <div class="ui-login-card">
+        <aside class="ui-login-brand">
+            <div class="brand-row">知识管理</div>
+            <h1>让知识<br>随时触手可及</h1>
+            <p>汇聚项目文档与经验，支持全文检索与 AI 智能问答，注册后即可加入。</p>
+            <div class="ui-doc-stack" aria-hidden="true">
+                <div class="doc doc-1"></div>
+                <div class="doc doc-2"></div>
+                <div class="doc doc-3"><span class="bookmark"></span></div>
+            </div>
+        </aside>
+        <main class="ui-login-main">
+            <h2>{{i18n .Lang "common.new_account"}}</h2>
+            <p class="login-sub">注册知识管理平台账号</p>
             <form role="form" method="post" id="registerForm">
             {{ .xsrfdata }}
-                <h3 class="text-center">{{i18n .Lang "common.new_account"}}</h3>
                 <div class="form-group">
                     <div class="input-group">
                         <div class="input-group-addon">
@@ -68,28 +73,28 @@
                 </div>
 
                 <div class="form-group">
-                    <div class="input-group" style="float: left;width: 195px;">
-                        <div class="input-group-addon">
-                            <i class="fa fa-check-square"></i>
+                    <div class="captcha-row">
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-check-square"></i>
+                            </div>
+                            <input type="text" name="code" id="code" class="form-control" maxlength="5" placeholder="{{i18n .Lang "common.captcha"}}" autocomplete="off">
                         </div>
-                        <input type="text" name="code" id="code" class="form-control" style="width: 150px" maxlength="5" placeholder="{{i18n .Lang "common.captcha"}}" autocomplete="off">&nbsp;
+                        <img id="captcha-img" src="{{urlfor "AccountController.Captcha"}}" onclick="this.src='{{urlfor "AccountController.Captcha"}}?key=login&t='+(new Date()).getTime();" title={{i18n .Lang "message.click_to_change"}}>
                     </div>
-                    <img id="captcha-img" style="width: 140px;height: 40px;display: inline-block;float: right" src="{{urlfor "AccountController.Captcha"}}" onclick="this.src='{{urlfor "AccountController.Captcha"}}?key=login&t='+(new Date()).getTime();" title="{{i18n .Lang "message.click_to_change"}}">
-                    <div class="clearfix"></div>
                 </div>
 
                 <div class="form-group">
-                    <button type="submit" id="btnRegister" class="btn btn-success" style="width: 100%"  data-loading-text="{{i18n .Lang "message.processing"}}" autocomplete="off">{{i18n .Lang "common.register"}}</button>
+                    <button type="submit" id="btnRegister" class="btn btn-success ui-btn-block" style="width: 100%"  data-loading-text="{{i18n .Lang "message.processing"}}" autocomplete="off">{{i18n .Lang "common.register"}}</button>
                 </div>
                 {{if ne .ENABLED_REGISTER "false"}}
-                <div class="form-group">
+                <div class="register-link">
                     {{i18n .Lang "message.has_account"}} <a href="{{urlfor "AccountController.Login" }}" title="{{i18n .Lang "common.login"}}">{{i18n .Lang "common.login"}}</a>
                 </div>
                 {{end}}
             </form>
-        </div>
+        </main>
     </div>
-    <div class="clearfix"></div>
 </div>
 {{template "widgets/footer.tpl" .}}
 <!-- Include all compiled plugins (below), or include individual files as needed -->

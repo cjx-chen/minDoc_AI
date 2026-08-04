@@ -16,11 +16,12 @@
     <link href="{{cdncss "/static/cropper/2.3.4/cropper.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/select2/4.0.5/css/select2.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
 </head>
 <body>
 <div class="manual-reader">
     {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body">
         <div class="row">
         {{template "manager/widgets.tpl" .}}
             <div class="page-right">
@@ -35,7 +36,7 @@
                         {{end}}
                         <button type="button"  class="btn btn-danger btn-sm pull-right" style="margin-right: 5px;" data-toggle="modal" data-target="#deleteBookModal">{{i18n .Lang "blog.delete_project"}}</button>
                     </div>
-                </div>
+                
                 <div class="box-body" style="padding-right: 200px;">
                     <div class="form-left">
                         <form method="post" id="bookEditForm" action="{{urlfor "ManagerController.EditBook" ":key" .Model.Identify}}">
@@ -144,6 +145,7 @@
                     </div>
                     <div class="clearfix"></div>
 
+                </div>
                 </div>
             </div>
         </div>

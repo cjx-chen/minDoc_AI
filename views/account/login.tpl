@@ -14,63 +14,28 @@
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
-    <style>
-        .line {
-            height:0;
-            border-top: 1px solid #cccccc;
-            text-align:center;
-            margin: 14px 0;
-        }
-        .line > .text {
-            position:relative;
-            top:-12px;
-            background-color:#fff;
-            padding: 5px;
-        }
-        .icon-box {
-            align-items: center;
-            justify-content: center;
-            display: flex;
-            display: -webkit-flex;
-        }
-
-        .icon {
-            box-sizing: border-box;
-            display: inline-block;
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            margin: 0 5px;
-        }
-        .icon-disable {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        .icon-disable:hover {
-            background-color: #bbbbbb;
-        }
-
-        .icon > img {
-            height: 24px;
-        }
-    </style>
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 </head>
-<body class="manual-container">
-<header class="navbar navbar-static-top smart-nav navbar-fixed-top manual-header" role="banner">
-    <div class="container">
-        <div class="navbar-header col-sm-12 col-md-6 col-lg-5">
-            <a href="{{.BaseUrl}}" class="navbar-brand">知识管理</a>
-        </div>
-    </div>
-</header>
-<div class="container manual-body">
-    <div class="row login">
-        <div class="login-body">
+<body class="ui-login-page">
+<div class="ui-login-shell">
+    <div class="ui-login-card">
+        <aside class="ui-login-brand">
+            <div class="brand-row">知识管理</div>
+            <h1>让知识<br>随时触手可及</h1>
+            <p>汇聚项目文档与经验，支持全文检索与 AI 智能问答，登录后即可开始探索。</p>
+            <div class="ui-doc-stack" aria-hidden="true">
+                <div class="doc doc-1"></div>
+                <div class="doc doc-2"></div>
+                <div class="doc doc-3"><span class="bookmark"></span></div>
+            </div>
+        </aside>
+        <main class="ui-login-main">
+            <h2>{{i18n .Lang "common.login"}}</h2>
+            <p class="login-sub">使用域账号登录知识管理平台</p>
             <form role="form" method="post">
             {{ .xsrfdata }}
-                <h3 class="text-center">{{i18n .Lang "common.login"}}</h3>
                 <div class="form-group">
                     <div class="input-group">
                         <div class="input-group-addon">
@@ -89,22 +54,25 @@
                 </div>
                 {{if .ShowLoginCaptcha}}
                 <div class="form-group">
-                    <div class="input-group" style="float: left;width: 195px;">
-                        <div class="input-group-addon">
-                            <i class="fa fa-check-square"></i>
+                    <div class="captcha-row">
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-check-square"></i>
+                            </div>
+                            <input type="text" name="code" id="code" class="form-control" maxlength="5" placeholder="{{i18n .Lang "common.captcha"}}" autocomplete="off">
                         </div>
-                        <input type="text" name="code" id="code" class="form-control" style="width: 150px" maxlength="5" placeholder="{{i18n .Lang "common.captcha"}}" autocomplete="off">&nbsp;
+                        <img id="captcha-img" src="{{urlfor "AccountController.Captcha"}}" onclick="this.src='{{urlfor "AccountController.Captcha"}}?key=login&t='+(new Date()).getTime();" title={{i18n .Lang "message.click_to_change"}}>
                     </div>
-                    <img id="captcha-img" style="width: 140px;height: 40px;display: inline-block;float: right" src="{{urlfor "AccountController.Captcha"}}" onclick="this.src='{{urlfor "AccountController.Captcha"}}?key=login&t='+(new Date()).getTime();" title={{i18n .Lang "message.click_to_change"}}>
-                    <div class="clearfix"></div>
                 </div>
                 {{end}}
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="is_remember" value="yes"> {{i18n .Lang "common.keep_login"}}
-                    </label>
+                <div class="login-options">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="is_remember" value="yes"> {{i18n .Lang "common.keep_login"}}
+                        </label>
+                    </div>
                     {{if .ShowForgotPassword}}
-                    <a href="{{urlfor "AccountController.FindPassword" }}" style="display: inline-block;float: right">{{i18n .Lang "common.forgot_password"}}</a>
+                    <a href="{{urlfor "AccountController.FindPassword" }}">{{i18n .Lang "common.forgot_password"}}</a>
                     {{end}}
                 </div>
                 <div class="form-group">
@@ -112,7 +80,7 @@
                 </div>
                 {{if .ENABLED_REGISTER}}
                     {{if ne .ENABLED_REGISTER "false"}}
-                        <div class="form-group">
+                        <div class="register-link">
                             {{i18n .Lang "message.no_account_yet"}} <a href="{{urlfor "AccountController.Register" }}" title={{i18n .Lang "common.register"}}>{{i18n .Lang "common.register"}}</a>
                         </div>
                     {{end}}
@@ -127,15 +95,14 @@
                             <img alt="{{i18n .Lang "common.dingtalk_login"}}" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAA9hJREFUaEPNmVvoZ1MUxz/fPOBR8uJBya0QXmRqhsZtasq4xQMP7h5GyiR5MIkHlOQBDyaEcmvGrTBCYjDuKbmUW3jyQF7kEsrSd9pHx+9/fufss8/5/85v1e7/6/9ba+31OXutfdbeP9EgEfE6cChwN3CXpL+a9Jbhf2oBWJ+++wN42DCSvliGoOsx5ADU9R8zjKRXlwWkL0AV905gO7BD0p9TwswDuAG4NSOwrxPIdkmfZeiPrjIP4Fjg456z7TCMpGd62g1SbwSwx4h4DzihwLvBnV6G+a7AvpdJG8BW4JZe3v6v/HsN5OUBflpN2wCOBj4daeLdLvi0Kj+O5HOPm7kAKY2eAzaNOOHPgH3uGZL+Geq7C8AvM7+VV0O8gxnkeUlvlE7QCpBW4QrgYmBd6SQZdh8ATwFPSvo+Q/8/lU6ASjMizksgZ/SZoKfub4ZIIC/m2GYD1ECOAs5MY03OJIU6HwIPSLqvzb6rBo4A3MB9A3wOvAXslvR+Sq8TU5EbyLqrIR8BWyR5J1shnSsQEd8CBzfYurhdfIbyOBXYmMZhq0CyTtLbs35zAO4HXMg58mgqRgPdNDKMt92zSgAuAB7Pib5B5wfAUG7Dz01Qha7YJenk3gAp118BTi+deSS7OyVdVwrg4A0xpWyU9FIRQFqFmwemwBD4JyRdWLQL1Y0iYiqINdXWXbwClWFEXAVcCxwy5JH2sPWtyJZ5+p3baJNhRBwAHAfsm8Y+M3/3ArwD1Yfb876NoVtvP/25B6MigJm02h/wEdTDUNXnHg95rupWSbe1OSoGSPVwDnDMGJE2+PAlgZ++G7y5MgTAbUNWx1gIeJmkh7psiwHS1upj4vldkxR8/7Qkt++dMghglSB+AU6R5C60UwYDJIgx3w83Ssq+DRkFIEG4oO9oeT/8BPhK0nXj1GuSN4HTJP3d+eiTwmgACWI/YENq/KoXnS/IdlYHkogw5IqmLMWzSdILucFbb1SAnIkjwoegkxp0d82zb2qjK92FAkTEQcCXgN/cOfIrcHzb7xKLBvDW6FuHXLlI0iNtyosGuB24PjN6/yJ0TZfuogFeA1YcCxuCfEfS2q7gF1rEEXE4cGBDUN5W3dVW4rxfK+mTpQJoCiYiLgFm+53LJT2YE/xCV2AOgG/drqx9d68kH5iyZaE1MBtVRLhl9lWlJTvv634mA4iII9N1peNx3q/PbeCWBeBq4J4UzGZJ27LzpqY45Qo8C5wNbJO0uST4SYs4ItydfpVSJ7v7nAWdZAVST+Tr+g2S3i19+pOtQERcCuxdmveTF3FEeL8vzvs6wL8iyC9AZnHsagAAAABJRU5ErkJggg==">
                         </div>
                         <div class="icon {{ if .CanLoginWorkWeixin }}btn-success{{else}}icon-disable{{end}}" title="{{i18n .Lang "common.wecom_login"}}" data-url="{{ .workweixin_login_url }}">
-                            <img alt="{{i18n .Lang "common.wecom_login"}}" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAABE9JREFUaEPtmVvIpWMUx3//IkkYhgkXTBiFHEPjVCYXJscJMyOHMEUZN0NOuWEuJCPHhBnqk0MuhmYaoswFQoYoTAqNHBqH0IyRK9Jfa/e80/u93/vt5917v/vb31ez6m1fPOv0f9Z6nrWetcUMJ81w/xkIgO3DgTOBY4H9St8fwPfAD+l3o6T/hrFZPQOwfSFwMXBGcryJX/8CLwFvAgFmexOhJjyNASTHbwQuaqK4C8/PwDPAakm/DKgrn0K25wKPAIsGNVaRL4DcJyki1Bd1jYDt84ExYE5f2psJvQ8s6TcakwKwfTuwqpkPA3NtAxZI+qJXTbUAbJ8DvN2rshb4T5H0aS96JgCwfRTwdS9KWuY9UFJcw41oHADbewMbgIjAqGiDpEuaGq8CeBK4qanwEPlWSHqsif6dAGwfCsQh2reJ4JB5vgPmS/otZ6cM4C7g/pzAFK4vl/RUzl4ZQOz+cTmBKVx/VdLlOXsdACl9ovGaTrRd0v45hwoAZwHv5ZhHsD5L0o5udgsAV6ZucQQ+djU5T9KWJgCmwwF+AViTimg0d1GLfpW0qQmA61LTNqoIrJW0pB/jRQqdCnzcj4IWZDZLOj5dJvsApwOHAW9JilddVyoA7AX8CeyWExjC+kpJ9yYAH6SXXmHmaElfZVMoCX8GnDAEB3Mqo41+x/bVQJyDMq2TdGlTALEL9+SsDWG9ABAvvnUV/f8AR0jaOpndciU+GPgEOGQITtapjPy+W9LLKQNmRd4DcR7LdK2k57MAkpKpiMJK4MP4JP2V7M4HFsZZsB1ZsLg08YhrNNZqC1q1nR5mFOIwLpI07rFk+/o0NFgj6Y5ip20HiOWpHoxJWlYXhboX2Q2poLSZSTskRYp0yHZcm2enbynwmqSYNU0g20VWzJH0e5VhsjfxQ8CtLSJYJmnM9pHAw5XZUgy5TuvWMqRmMyYj8eA6Js2V3pW0vttU4nXgghZAbJIUxSl2vu6MNWqbbb8IXFXyp6O3G4DYrY1ADLYGoS2S5iUAMemovrezDxfbJwN104oFucFWvNCi0RuEduZ/zazpR+AkSTEXmpRs3wY8WGHYJml2DkDc0VcM4n2SvUXSoykKNwNPAF8CjwPfRCXOAIih8MISz0fA05KeywGI+zru6DZoD0lRWceRbadOOEBOuOttr0jX7OfA+phwSwoAHcoBiOnxQTXeB7ComnsCB6RvduV3MxDft0C0AlslvVEDoHAwClZEJhzspJTtE9OEcG2q2hMGXjkAsTtlioP0gKRQ2BrZXg3E6D4onI+UCTC7A+cW3WqdwRyA4tYIx6NSxoupdUr/9ESlDocL+htYWhe1sgM5APHAmNvP1LhXlLZfAS6ryD0rKTqDSanxPzS9OtQrv+1rgGrXuUrSnTMCQDq05bMQF8ViST/NGAAJRLQd53U7uI3PQK9pMAr+aXMG+gW/C0C/O9eW3K4ItLWT/eqZ8RH4H4Zge30AMjOdAAAAAElFTkSuQmCC">
+                            <img alt="{{i18n .Lang "common.wecom_login"}}" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAABE9JREFUaEPtmVvIpWMUx3//IkkYhgkXTBiFHEPjVCYXJscJMyOHMEUZN0NOuWEuJCPHhBnqk0MuhmYaoswFQoYoTAqNHBqH0IyRK9Jfa/e80/u93/vt5917v/vb31ez6m1fPOv0f9Z6nrWetcUMJ81w/xkIgO3DgTOBY4H9St8fwPfAD+l3o6T/hrFZPQOwfSFwMXBGcryJX/8CLwFvAgFmexOhJjyNASTHbwQuaqK4C8/PwDPAakm/DKgrn0K25wKPAIsGNVaRL4DcJyki1Bd1jYDt84ExYE5f2psJvQ8s6TcakwKwfTuwqpkPA3NtAxZI+qJXTbUAbJ8DvN2rshb4T5H0aS96JgCwfRTwdS9KWuY9UFJcw41oHADbewMbgIjAqGiDpEuaGq8CeBK4qanwEPlWSHqsif6dAGwfCsQh2reJ4JB5vgPmS/otZ6cM4C7g/pzAFK4vl/RUzl4ZQOz+cTmBKVx/VdLlOXsdACl9ovGaTrRd0v45hwoAZwHv5ZhHsD5L0o5udgsAV6ZucQQ+djU5T9KWJgCmwwF+AViTimg0d1GLfpW0qQmA61LTNqoIrJW0pB/jRQqdCnzcj4IWZDZLOj5dJvsApwOHAW9JilddVyoA7AX8CeyWExjC+kpJ9yYAH6SXXmHmaElfZVMoCX8GnDAEB3Mqo41+x/bVQJyDMq2TdGlTALEL9+SsDWG9ABAvvnUV/f8AR0jaOpndciU+GPgEOGQITtapjPy+W9LLKQNmRd4DcR7LdK2k57MAkpKpiMJK4MP4JP2V7M4HFsZZsB1ZsLg08YhrNNZqC1q1nR5mFOIwLpI07rFk+/o0NFgj6Y5ip20HiOWpHoxJWlYXhboX2Q2poLSZSTskRYp0yHZcm2enbynwmqSYNU0g20VWzJH0e5VhsjfxQ8CtLSJYJmnM9pHAw5XZUgy5TuvWMqRmMyYj8eA6Js2V3pW0vttU4nXgghZAbJIUxSl2vu6MNWqbbb8IXFXyp6O3G4DYrY1ADLYGoS2S5iUAMemovrezDxfbJwNPAF8CjwPfRCXOAIih8MISz0fA05KeywGI+zru6DZoD0lRWceRbadOOEBOuOttr0jX7OfA+phwSwoAHcoBiOnxQTXeB7ComnsCB6RvduV3MxDft0C0AlslvVEDoHAwClZEJhzspJTtE9OEcG2q2hMGXjkAsTtlioP0gKRQ2BrZXg3E6D4onI+UCTC7A+cW3WqdwRyA4tYIx6NSxoupdUr/9ESlDlocL+htYWhe1sgM5APHAmNvP1LhXlLZfAS6ryD0rKTqDSanxPzS9OtQrv+1rgGrXuUrSnTMCQDq05bMQF8ViST/NGAAJRLQd53U7uI3PQK9pMAr+aXMG+gW/C0C/O9eW3K4ItLWT/eqZ8RH4H4Zge30AMjOdAAAAAElFTkSuQmCC">
                         </div>
                     </div>
                 </div>
                 {{end}}
             </form>
-        </div>
+        </main>
     </div>
-    <div class="clearfix"></div>
 </div>
 {{template "widgets/footer.tpl" .}}
 <!-- Include all compiled plugins (below), or include individual files as needed -->

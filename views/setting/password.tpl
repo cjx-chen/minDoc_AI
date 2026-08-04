@@ -12,6 +12,7 @@
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
 
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -22,12 +23,12 @@
 <body>
 <div class="manual-reader">
     {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body">
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
-                    <li><a href="{{urlfor "SettingController.Index"}}" class="item"><i class="fa fa-sitemap" aria-hidden="true"></i> {{i18n .Lang "uc.base_info"}}</a> </li>
-                    <li class="active"><a href="{{urlfor "SettingController.Password"}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> {{i18n .Lang "uc.change_pwd"}}</a> </li>
+                    <li><a href="{{urlfor "SettingController.Index"}}" class="item"><i class="fa fa-id-card-o" aria-hidden="true"></i> {{i18n .Lang "uc.base_info"}}</a> </li>
+                    <li class="active"><a href="{{urlfor "SettingController.Password"}}" class="item"><i class="fa fa-lock" aria-hidden="true"></i> {{i18n .Lang "uc.change_pwd"}}</a> </li>
                 </ul>
             </div>
             <div class="page-right">
@@ -35,28 +36,30 @@
                     <div class="box-head">
                         <strong class="box-title">{{i18n .Lang "uc.change_pwd"}}</strong>
                     </div>
-                </div>
-                <div class="box-body" style="width: 300px;">
-                    <form role="form" method="post" id="securityForm">
-                        <div class="form-group">
-                            <label for="password1">{{i18n .Lang "uc.origin_pwd"}}</label>
-                            <input type="password" name="password1" id="password1" class="form-control disabled" placeholder="{{i18n .Lang "uc.origin_pwd"}}">
+                    <div class="box-body">
+                        <div class="form-left" style="max-width: 340px;">
+                            <form role="form" method="post" id="securityForm">
+                                <div class="form-group">
+                                    <label for="password1">{{i18n .Lang "uc.origin_pwd"}}</label>
+                                    <input type="password" name="password1" id="password1" class="form-control" placeholder="{{i18n .Lang "uc.origin_pwd"}}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="password2">{{i18n .Lang "uc.new_pwd"}}</label>
+                                    <input type="password" class="form-control" name="password2" id="password2" max="50" placeholder="{{i18n .Lang "uc.new_pwd"}}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="password3">{{i18n .Lang "uc.confirm_pwd"}}</label>
+                                    <input type="password" class="form-control" id="password3" name="password3" placeholder="{{i18n .Lang "uc.confirm_pwd"}}">
+                                </div>
+                                <div class="form-group">
+                                    <span id="form-error-message" class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "common.save"}}</button>
+                                </div>
+                            </form>
                         </div>
-                        <div class="form-group">
-                            <label for="password2">{{i18n .Lang "uc.new_pwd"}}</label>
-                            <input type="password" class="form-control" name="password2" id="password2" max="50" placeholder="{{i18n .Lang "uc.new_pwd"}}">
-                        </div>
-                        <div class="form-group">
-                            <label for="password3">{{i18n .Lang "uc.confirm_pwd"}}</label>
-                            <input type="password" class="form-control" id="password3" name="password3" placeholder="{{i18n .Lang "uc.confirm_pwd"}}">
-                        </div>
-                        <div class="form-group">
-                            <span id="form-error-message" class="error-message"></span>
-                        </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "common.save"}}</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>

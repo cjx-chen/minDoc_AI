@@ -11,6 +11,7 @@
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
 
     <style type="text/css">
         .table > tbody > tr > td {
@@ -21,7 +22,7 @@
 <body>
 <div class="manual-reader">
 {{template "widgets/header.tpl" .}}
-    <div class="container manual-body">
+    <div class="container manual-body ui-setting-body">
         <div class="row">
         {{template "manager/widgets.tpl" .}}
             <div class="page-right">
@@ -35,7 +36,7 @@
                         </button>
                     {{end}}
                     </div>
-                </div>
+                
                 <div class="box-body">
                     <div class="users-list" id="teamList">
                         <template v-if="lists.length <= 0">
@@ -70,6 +71,7 @@
                         {{.PageHtml}}
                         </nav>
                     </div>
+                </div>
                 </div>
             </div>
         </div>
