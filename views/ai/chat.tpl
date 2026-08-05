@@ -422,7 +422,10 @@
             background: var(--ai-card);
             transition: border-color .15s, box-shadow .15s;
         }
-        .ai-input-box:focus-within { border-color: var(--ai-accent); box-shadow: 0 0 0 3px rgba(14,124,107,.12); }
+        .ai-input-box:focus-within {
+            border-color: var(--ai-accent);
+            box-shadow: 0 0 0 3px rgba(14, 124, 107, .12);
+        }
         .ai-input-box textarea {
             display: block;
             width: 100%;
@@ -437,6 +440,11 @@
             background: transparent;
             max-height: 168px;
             font-family: inherit;
+        }
+        body.ai-standalone .ai-input-box #question:focus,
+        body.ai-standalone .ai-input-box #question:focus-visible {
+            outline: none !important;
+            box-shadow: none !important;
         }
         .ai-input-toolbar {
             display: flex;
