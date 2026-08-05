@@ -361,12 +361,15 @@ window.documentHistory = function () {
             hisVer: 'Historic version',
         }
     }
+    var dialogWidth = Math.min(860, Math.max(320, $(window).width() - 48));
+    var dialogHeight = Math.min(680, Math.max(360, Math.round($(window).height() * 0.8)));
     layer.open({
         type: 2,
         title: getMinDocSafeLocale(locales).hisVer || "\u5386\u53f2\u7248\u672c",
+        skin: 'mindoc-history-layer',
         shadeClose: true,
-        shade: 0.8,
-        area: ['700px', '80%'],
+        shade: 0.32,
+        area: [dialogWidth + 'px', dialogHeight + 'px'],
         content: window.historyURL + "?identify=" + window.book.identify + "&doc_id=" + window.selectNode.id,
         end: function () {
             if (window.SelectedId) {

@@ -12,6 +12,7 @@
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/history-dialog.css" "version"}}" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -21,14 +22,12 @@
     <![endif]-->
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
-    <style type="text/css">
-        .container{margin: 5px auto;}
-    </style>
 </head>
-<body>
-<div class="container">
-    <div class="table-responsive">
-        <table class="table table-hover">
+<body class="history-page">
+<div class="container history-shell">
+    <div class="history-card">
+      <div class="table-responsive">
+        <table class="table table-hover history-table">
             <thead>
             <tr>
                 <td>#</td>
@@ -41,11 +40,11 @@
             <tbody>
             {{range $index,$item := .List}}
             <tr>
-                <td>{{$item.HistoryId}}</td>
+                <td class="history-id">{{$item.HistoryId}}</td>
                 <td>{{date_format $item.ModifyTime "2006-01-02 15:04:05"}}</td>
                 <td>{{$item.ModifyName}}</td>
-                <td>{{$item.Version}}</td>
-                <td>
+                <td class="history-version">{{$item.Version}}</td>
+                <td class="history-actions">
                     <button class="btn btn-danger btn-sm delete-btn" data-id="{{$item.HistoryId}}" data-loading-text="{{i18n $.Lang "message.processing"}}">
                         {{i18n $.Lang "doc.delete"}}
                     </button>
@@ -61,11 +60,12 @@
             </tr>
             {{else}}
             <tr>
-                <td colspan="6" class="text-center">暂无数据</td>
+                <td colspan="6" class="text-center history-empty">暂无历史版本</td>
             </tr>
             {{end}}
             </tbody>
         </table>
+      </div>
     </div>
     <nav>
         {{.PageHtml}}

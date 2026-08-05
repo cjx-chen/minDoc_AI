@@ -1,0 +1,212 @@
+/* Document history dialog shared by every editor. */
+:root {
+    --history-bg: #f5f7f8;
+    --history-card: #fff;
+    --history-ink: #1f2329;
+    --history-sub: #646a73;
+    --history-muted: #8f959e;
+    --history-line: #e5e6eb;
+    --history-green: #009a61;
+    --history-green-dark: #00794c;
+    --history-green-tint: #e7f6f0;
+}
+
+.layui-layer.mindoc-history-layer {
+    overflow: hidden;
+    border-radius: 14px !important;
+    background: var(--history-card);
+    box-shadow: 0 18px 52px rgba(31, 35, 41, .2) !important;
+}
+
+.mindoc-history-layer .layui-layer-title {
+    height: 56px;
+    padding: 0 56px 0 22px;
+    border-bottom: 1px solid var(--history-line);
+    background: #fff;
+    color: var(--history-ink);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 56px;
+}
+
+.mindoc-history-layer .layui-layer-title::before {
+    display: inline-block;
+    width: 4px;
+    height: 18px;
+    margin-right: 10px;
+    border-radius: 4px;
+    background: var(--history-green);
+    content: "";
+    vertical-align: -3px;
+}
+
+.mindoc-history-layer .layui-layer-setwin {
+    top: 20px;
+    right: 20px;
+}
+
+.mindoc-history-layer .layui-layer-content,
+.mindoc-history-layer iframe {
+    background: var(--history-bg);
+}
+
+body.history-page {
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    background: var(--history-bg);
+    color: var(--history-ink);
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+}
+
+.history-page .history-shell {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.history-page .history-card {
+    overflow: hidden;
+    border: 1px solid var(--history-line);
+    border-radius: 12px;
+    background: var(--history-card);
+    box-shadow: 0 5px 18px rgba(31, 35, 41, .05);
+}
+
+.history-page .table-responsive {
+    margin: 0;
+    border: 0;
+}
+
+.history-page .history-table {
+    margin: 0;
+    font-size: 13px;
+}
+
+.history-page .history-table thead td {
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--history-line);
+    background: #f8faf9;
+    color: var(--history-sub);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.history-page .history-table tbody td {
+    padding: 13px 14px;
+    border-top: 1px solid #f0f1f2;
+    color: var(--history-sub);
+    vertical-align: middle;
+}
+
+.history-page .history-table tbody tr:first-child td {
+    border-top: 0;
+}
+
+.history-page .history-table tbody tr:hover td {
+    background: #fbfdfc;
+}
+
+.history-page .history-id,
+.history-page .history-version {
+    color: var(--history-muted);
+    font-family: Consolas, monospace;
+    font-size: 12px;
+}
+
+.history-page .history-actions {
+    min-width: 188px;
+    white-space: nowrap;
+}
+
+.history-page .history-actions .btn {
+    height: 30px;
+    margin-right: 5px;
+    padding: 4px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 20px;
+    box-shadow: none;
+}
+
+.history-page .history-actions .btn:last-child {
+    margin-right: 0;
+}
+
+.history-page .history-actions .delete-btn {
+    border-color: #f1d5d5;
+    background: #fff7f7;
+    color: #c43e3e;
+}
+
+.history-page .history-actions .delete-btn:hover,
+.history-page .history-actions .delete-btn:focus {
+    border-color: #df6b6b;
+    background: #fff0f0;
+    color: #a92727;
+}
+
+.history-page .history-actions .restore-btn {
+    border-color: var(--history-green);
+    background: var(--history-green);
+    color: #fff;
+}
+
+.history-page .history-actions .restore-btn:hover,
+.history-page .history-actions .restore-btn:focus {
+    border-color: var(--history-green-dark);
+    background: var(--history-green-dark);
+}
+
+.history-page .history-actions .compare-btn {
+    border-color: rgba(0, 154, 97, .32);
+    background: var(--history-green-tint);
+    color: var(--history-green-dark);
+}
+
+.history-page .history-actions .compare-btn:hover,
+.history-page .history-actions .compare-btn:focus {
+    border-color: var(--history-green);
+    background: #dff2ea;
+}
+
+.history-page .history-empty {
+    padding: 54px 20px !important;
+    color: var(--history-muted) !important;
+    font-size: 14px;
+}
+
+.history-page nav {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.history-page .pagination {
+    margin: 0;
+}
+
+.history-page .pagination > li > a,
+.history-page .pagination > li > span {
+    margin: 0 3px;
+    border: 1px solid var(--history-line);
+    border-radius: 6px;
+    color: var(--history-sub);
+}
+
+.history-page .pagination > .active > a,
+.history-page .pagination > .active > span {
+    border-color: var(--history-green);
+    background: var(--history-green);
+    color: #fff;
+}
+
+@media (max-width: 640px) {
+    body.history-page {
+        padding: 12px;
+    }
+
+    .history-page .history-table thead td,
+    .history-page .history-table tbody td {
+        padding: 10px;
+    }
+}
