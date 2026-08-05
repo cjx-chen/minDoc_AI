@@ -556,6 +556,13 @@ $(function () {
     }).resize();
 
     window.isFullScreen = false;
+    try {
+        if (window.localStorage && window.localStorage.getItem("mindoc.reader.sidebar.collapsed") === "1") {
+            window.isFullScreen = true;
+            $(".m-manual").addClass('manual-fullscreen-active');
+        }
+    } catch (e) {
+    }
 
     initHighlighting();
     window.jsTree = $("#sidebar").jstree({
@@ -601,6 +608,12 @@ $(function () {
             $(".m-manual").addClass('manual-fullscreen-active');
         } else {
             $(".m-manual").removeClass('manual-fullscreen-active');
+        }
+        try {
+            if (window.localStorage) {
+                window.localStorage.setItem("mindoc.reader.sidebar.collapsed", isFullScreen ? "1" : "0");
+            }
+        } catch (e) {
         }
     });
 

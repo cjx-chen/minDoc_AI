@@ -1,5 +1,6 @@
 $(function () {
     var splitBar = {
+        defaultWidth: 292,
         // 设置当前屏幕为 840px 时将分割条隐藏
         maxWidth: 840,
 
@@ -20,7 +21,7 @@ $(function () {
                         position: absolute;\
                         user-select: none;\
                         cursor: col-resize;\
-                        left: 275px;\
+                        left: 290.5px;\
                         height: 100%;\
                         display: block;\
                         width: 3px;">\
@@ -81,9 +82,12 @@ $(function () {
          * 屏幕大于 840px，重置左右窗口
          */
         outMaxWidthReset: function () {
-            $('.manual-right').css('left', '279px');
-            $('.manual-left').css('width', '279px');
-            $('#manual-vsplitbar').css('left', '275px').css('display', 'block');
+            var barWidth = $('#manual-vsplitbar').outerWidth() || 3;
+            $('.manual-right').css('left', splitBar.defaultWidth + 'px');
+            $('.manual-left').css('width', splitBar.defaultWidth + 'px');
+            $('#manual-vsplitbar')
+                .css('left', (splitBar.defaultWidth - barWidth / 2) + 'px')
+                .css('display', 'block');
         }
     }
 
@@ -145,15 +149,16 @@ $(function () {
         var docMouseUp = document.onmouseup;
 
         document.onmousemove = function (e) {
-            var curPos = splitBar.left + ((e || event).clientX - disX);
-            var maxPos = bodyEle.clientWidth - splitBar.offsetWidth;
+            var barWidth = splitBar.offsetWidth || 3;
+            var curPos = splitBar.left + barWidth / 2 + ((e || event).clientX - disX);
+            var maxPos = bodyEle.clientWidth - barWidth;
 
             curPos > maxPos && (curPos = maxPos);
             curPos < 140 && (curPos = 140);
 
             leftPane.style.width = curPos + "px";
-            splitBar.style.left = curPos - 3 + "px";
-            rightPane.style.left = curPos + 3 + "px";
+            splitBar.style.left = curPos - barWidth / 2 + "px";
+            rightPane.style.left = curPos + "px";
 
             return false;
         }
