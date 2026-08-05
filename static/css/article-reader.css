@@ -574,6 +574,26 @@ body::before {
 }
 
 /* Article canvas */
+.m-manual.manual-reader .article-body table {
+    display: table;
+    width: 100% !important;
+    min-width: 0;
+    max-width: 100%;
+    table-layout: fixed !important;
+    white-space: normal;
+    font-size: 12px;
+}
+
+.m-manual.manual-reader .article-body table th,
+.m-manual.manual-reader .article-body table td {
+    min-width: 0;
+    padding: 6px 5px;
+    white-space: normal !important;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    line-height: 1.45;
+}
+
 .m-manual.manual-reader .manual-right {
     top: 64px;
     left: 292px;
