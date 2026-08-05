@@ -41,6 +41,13 @@
     color: var(--reader-green, #009a61);
 }
 
+.m-manual.manual-reader.article-toc-hidden .article-toc-toggle {
+    border-color: rgba(0, 154, 97, .38);
+    background: var(--reader-green-tint, #e7f6f0);
+    color: var(--reader-green-dark, #00794c);
+    box-shadow: 0 6px 20px rgba(0, 121, 76, .16);
+}
+
 .m-manual.manual-reader.article-toc-hidden #page-content [data-article-toc="1"] {
     display: none !important;
 }
