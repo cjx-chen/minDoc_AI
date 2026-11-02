@@ -292,6 +292,20 @@ enable_ai_chat="${MINDOC_ENABLE_AI_CHAT||true}"
 #ai_model="${MINDOC_AI_MODEL||gpt-4o-mini}"
 #ai_request_profile="${MINDOC_AI_REQUEST_PROFILE||openai}"
 ai_request_timeout="120"
+# Web link hub: collect external links and auto-capture page info (title/description/icon/cover).
+enable_web_links="${MINDOC_ENABLE_WEB_LINKS||true}"
+web_link_fetch_timeout="8"
+web_link_fetch_max_bytes="2097152"
+web_link_fetch_max_redirects="5"
+# Capture readable content snapshot for in-library reading (independent from AI Q&A).
+web_link_capture_content="true"
+web_link_content_max_bytes="262144"
+# Readability char threshold (lower helps short Chinese articles; default 150).
+web_link_char_threshold="150"
+# Capture result cache TTL in seconds (avoids double fetch on preview->save).
+web_link_cache_ttl="60"
+# Allow capturing intranet/private addresses (SSRF risk, off by default).
+#web_link_allow_private="false"
 
 # Authentication header. Use auto for profile defaults:
 # openai: Authorization: Bearer <ai_api_key>

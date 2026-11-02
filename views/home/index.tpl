@@ -17,6 +17,10 @@
     <link href="{{cdncss "/static/css/mindoc-ui.css" "version"}}" rel="stylesheet">
     <script type="text/javascript">
         window.updateBookOrder = "{{urlfor "BookController.UpdateBookOrder"}}";
+        /* 3D 书柜功能开关 · 服务端默认值。
+           后端可在 HomeController.Index 注入 c.Data["EnableShelf3D"]；缺省时取 false（默认关闭）。
+           用户在前端拨动开关后的选择存 localStorage，优先级高于此默认值。 */
+        window.MINDOC_SHELF3D_DEFAULT = {{if .EnableShelf3D}}true{{else}}false{{end}};
     </script>
 </head>
 <body>
@@ -27,13 +31,105 @@
             <span class="hero-eyebrow"><i class="fa fa-book" aria-hidden="true"></i>&nbsp;知识管理 · 文档库</span>
             <h1>全部文档</h1>
             <p>浏览沉淀的项目文档与知识资产，或使用顶部搜索快速定位内容</p>
+            <div class="ui-home-actions">
+                <div class="ui-view-toggle" id="home-view-toggle">
+                    <button type="button" data-view="cards" class="active"><i class="fa fa-th-large" aria-hidden="true"></i>卡片视图</button>
+                    <button type="button" data-view="shelf"><i class="fa fa-book" aria-hidden="true"></i>3D 书柜</button>
+                </div>
+                <!-- 手册入口：<1024 隐藏视图切换后仍可打开规范手册（shelf-spec.js 用 document 级委托监听该 action） -->
+                <button type="button" class="ui-spec-link" data-shelf-action="spec">
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i>资产规范
+                </button>
+                <!-- 3D 书柜功能开关：默认关闭；开启后才显示「3D 书柜」视图入口与规范手册（shelf-3d.js 接线） -->
+                <button type="button" class="ui-shelf-switch" id="home-shelf-switch" role="switch" aria-checked="false"
+                        title="开启后，首页可切换到 3D 书柜视图">
+                    <span class="ui-shelf-switch-track" aria-hidden="true"><span class="ui-shelf-switch-thumb"></span></span>
+                    <span class="ui-shelf-switch-text">3D 书柜</span>
+                </button>
+            </div>
         </div>
     </div>
     <div class="container manual-body ui-home-body">
         <div class="row">
+            <div class="col-xs-12">
+                <!-- 3D 书柜舞台：canvas 由 shelf-3d.js 注入（class="shelf-canvas"），chrome 样式见 mindoc-ui.css -->
+                <div class="home-shelf-3d" id="home-shelf-3d" role="region" aria-label="知识书柜 3D 展示"
+                     data-style="real" data-camera="three-quarter" data-environment="studio" data-phase="idle">
+                    <!-- canvas 由 shelf-3d.js 注入，class="shelf-canvas" -->
+
+                    <div class="shelf-topbar">
+                        <div class="shelf-brand">
+                            <span class="shelf-brand-mark" aria-hidden="true"><i class="fa fa-book"></i></span>
+                            <span class="shelf-brand-text"><b>知识书柜</b><em>Walnut · 5 层 · 3D</em></span>
+                        </div>
+                        <div class="shelf-controls">
+                            <div class="shelf-seg" role="group" aria-label="材质风格">
+                                <button type="button" data-shelf-style="real" class="is-active" aria-pressed="true">写实</button>
+                                <button type="button" data-shelf-style="stylized" aria-pressed="false">风格化</button>
+                                <button type="button" data-shelf-style="lowpoly" aria-pressed="false">低多边形</button>
+                            </div>
+                            <div class="shelf-seg" role="group" aria-label="机位">
+                                <button type="button" data-shelf-cam="three-quarter" class="is-active" aria-pressed="true">三分之四</button>
+                                <button type="button" data-shelf-cam="front" aria-pressed="false">正面</button>
+                                <button type="button" data-shelf-cam="hero" aria-pressed="false">低角度</button>
+                                <button type="button" data-shelf-cam="top" aria-pressed="false">俯视</button>
+                                <button type="button" data-shelf-cam="ortho" aria-pressed="false">正交</button>
+                            </div>
+                        </div>
+                        <div class="shelf-actions">
+                            <button type="button" data-shelf-action="env" aria-pressed="false">
+                                <span class="shelf-act-dot" aria-hidden="true"></span>
+                                <span class="shelf-act-label">摄影棚</span>
+                            </button>
+                            <button type="button" data-shelf-action="orbit" aria-pressed="false">环绕</button>
+                            <button type="button" data-shelf-action="sound" aria-pressed="true">音效</button>
+                            <button type="button" data-shelf-action="reset">重置</button>
+                            <button type="button" data-shelf-action="spec" class="shelf-act-primary">规范手册</button>
+                        </div>
+                    </div>
+
+                    <div class="shelf-statusbar" id="shelf-status" aria-live="polite"></div>
+
+                    <aside class="shelf-card" id="shelf-card" hidden aria-label="书籍详情">
+                        <button type="button" class="shelf-card-close" id="shelf-card-close" aria-label="关闭并放回书架">&times;</button>
+                        <div class="shelf-card-top">
+                            <div class="shelf-card-cover"><img id="shelf-card-cover-img" alt=""></div>
+                            <div class="shelf-card-heading">
+                                <span class="shelf-card-badge" id="shelf-card-badge"></span>
+                                <h2 class="shelf-card-name" id="shelf-card-name"></h2>
+                                <p class="shelf-card-meta" id="shelf-card-meta"></p>
+                            </div>
+                        </div>
+                        <p class="shelf-card-desc" id="shelf-card-desc"></p>
+                        <dl class="shelf-card-stats" id="shelf-card-stats"></dl>
+                        <div class="shelf-card-actions">
+                            <a class="shelf-card-open" id="shelf-card-open" href="#">进入项目</a>
+                            <button type="button" class="shelf-card-putback" id="shelf-card-putback">放回书架</button>
+                        </div>
+                        <p class="shelf-card-tip">拖动书本可换位 · Esc 放回</p>
+                    </aside>
+
+                    <div class="shelf-hint" aria-hidden="true">
+                        <span>拖拽旋转</span><span>滚轮缩放</span><span>拖动书本换位</span><span>单击取书</span>
+                    </div>
+
+                    <div class="shelf-toast" id="shelf-toast" role="status" aria-live="polite"></div>
+
+                    <div class="shelf-loading" id="shelf-loading">
+                        <span class="shelf-spinner" aria-hidden="true"></span><span>正在生成书柜场景…</span>
+                    </div>
+
+                    <div class="shelf-fallback" id="shelf-fallback" hidden>
+                        <p>当前浏览器无法渲染 3D 书柜，已为你保留卡片视图。</p>
+                        <button type="button" data-shelf-action="cards">切换到卡片视图</button>
+                    </div>
+
+                    <div id="shelf-spec-root"></div>
+                </div>
+            </div>
              <div class="manual-list ui-book-grid">
                 {{range $index,$item := .Lists}}
-                    <div class="list-item" data-id="{{$item.BookId}}">
+                    <div class="list-item" data-id="{{$item.BookId}}" data-docs="{{$item.DocCount}}" data-desc="{{$item.Description}}">
                         <dl class="manual-item-standard">
                             <dt>
                                 <a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" title="{{$item.BookName}}-{{$item.CreateName}}">
@@ -94,6 +190,9 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}"></script>
 <script src="{{cdnjs "/static/js/sort.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/three/three.min.js" "version"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/shelf-spec.js" "version"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/shelf-3d.js" "version"}}" type="text/javascript"></script>
 {{.Scripts}}
 </body>
 </html>

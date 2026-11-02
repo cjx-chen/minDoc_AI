@@ -85,6 +85,9 @@
                 <div class="dropdown pull-left" style="margin-right: 10px;">
                     <a href="javascript:void(0);" class="btn btn-success" id="article-ai-chat-button"><i class="fa fa-comments-o" aria-hidden="true"></i> AI&#38382;&#31572;</a>
                 </div>
+                <div class="dropdown pull-left" style="margin-right: 10px;">
+                    <a href="javascript:void(0);" class="btn btn-success" id="article-web-links-button" title="网页收集"><i class="fa fa-link" aria-hidden="true"></i> &#32593;&#39029;&#25910;&#38598;</a>
+                </div>
                 {{if gt .Member.MemberId 0}}
                 {{if eq .Model.RoleId 0 1 2}}
                 <div class="dropdown pull-left" style="margin-right: 10px;">
@@ -378,6 +381,19 @@ $(function () {
 });
 </script>
 {{.Scripts}}
+<div class="modal fade" id="article-web-links-modal" tabindex="-1" role="dialog" aria-labelledby="article-web-links-title">
+    <div class="modal-dialog modal-lg" role="document" style="width: 86%; max-width: 1200px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="article-web-links-title">&#32593;&#39029;&#25910;&#38598;</h4>
+            </div>
+            <div class="modal-body" style="height: 76vh; padding: 0;">
+                <iframe id="article-web-links-frame" data-src="{{urlfor "LinkController.LinkPage"}}?embedded=1&book_id={{.Model.BookId}}" title="&#32593;&#39029;&#25910;&#38598;" style="width: 100%; height: 100%; border: 0; background: #fff;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="article-ai-chat-modal" tabindex="-1" role="dialog" aria-labelledby="article-ai-chat-title">
     <div class="modal-dialog modal-lg" role="document" style="width: 86%; max-width: 1200px;">
         <div class="modal-content">
@@ -460,6 +476,15 @@ $(function () {
                     syncArticleAIModelSelector();
                 }
                 $("#article-ai-chat-modal").modal("show");
+            });
+        }
+        if ($("#article-web-links-button").length) {
+            $("#article-web-links-button").on("click", function () {
+                var $frame = $("#article-web-links-frame");
+                if (!$frame.attr("src")) {
+                    $frame.attr("src", $frame.attr("data-src"));
+                }
+                $("#article-web-links-modal").modal("show");
             });
         }
     });

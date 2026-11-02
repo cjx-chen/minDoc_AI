@@ -40,12 +40,17 @@ mindoc-ai-linux-amd64-package.tar.gz
 ├── static/                           # 前端静态资源
 ├── views/                            # 页面模板
 ├── lib/                              # 运行依赖资源
+├── uploads/                          # 上传目录（含默认图片）
+├── database/                         # SQLite 数据目录（仅演示模式使用）
 ├── deploy_mysql_ai_schema.sql        # AI 知识库相关数据库脚本
 ├── MinDoc_AI_试用手册.md              # 详细功能试用手册
+├── BUILD-INFO.txt                    # 构建信息与快速启动说明
 └── README.md                         # 部署说明
 ```
 
 注意：部署时需要保证 `conf/`、`static/`、`views/`、`lib/` 与可执行文件在同一部署目录下。
+
+生产部署建议使用 MySQL；SQLite 仅适合本机演示（并发写入时可能出现锁等待，历史版本记录可能丢失）。
 
 ## 3. 部署前准备
 
@@ -66,7 +71,7 @@ Linux AMD64：
 
 ### 3.2 数据库要求
 
-当前部署建议使用 MySQL。
+当前部署建议使用 MySQL。SQLite 仅适合本机演示，生产环境不建议使用。
 
 准备一个数据库，例如：
 
@@ -94,6 +99,12 @@ CREATE DATABASE mindoc DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ### 4.1 全新部署
 
 全新部署时，需要先准备 MinDoc 基础数据库表。基础表初始化方式请按现有 MinDoc 部署方式执行。
+
+也可以在部署目录执行安装命令自动初始化基础表：
+
+```bash
+./mindoc-ai-linux-amd64 install
+```
 
 AI 知识库相关表和索引可执行：
 
@@ -141,8 +152,8 @@ Windows 可直接复制并重命名。
 
 ```ini
 httpaddr=0.0.0.0
-httpport=8181
-baseurl=http://127.0.0.1:8181
+httpport=8182
+baseurl=http://127.0.0.1:8182
 ```
 
 说明：
@@ -367,7 +378,7 @@ POST /openapi/markdown/import
 8. 浏览器访问：
 
 ```text
-http://127.0.0.1:8181
+http://127.0.0.1:8182
 ```
 
 9. 登录后确认首页、项目列表、AI 问答入口是否正常。
@@ -406,28 +417,34 @@ vi conf/app.conf
 mysql -h数据库地址 -P3306 -u用户名 -p 数据库名 < deploy_mysql_ai_schema.sql
 ```
 
-6. 前台启动：
+6. 首次全新部署，初始化基础表（已有数据库可跳过）：
+
+```bash
+./mindoc-ai-linux-amd64 install
+```
+
+7. 前台启动：
 
 ```bash
 ./mindoc-ai-linux-amd64
 ```
 
-7. 后台启动：
+8. 后台启动：
 
 ```bash
 nohup ./mindoc-ai-linux-amd64 > mindoc.log 2>&1 &
 ```
 
-8. 查看日志：
+9. 查看日志：
 
 ```bash
 tail -f mindoc.log
 ```
 
-9. 浏览器访问：
+10. 浏览器访问：
 
 ```text
-http://服务器IP:8181
+http://服务器IP:8182
 ```
 
 ## 15. systemd 服务示例
@@ -475,7 +492,7 @@ server {
     server_name mindoc.example.com;
 
     location / {
-        proxy_pass http://127.0.0.1:8181;
+        proxy_pass http://127.0.0.1:8182;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -541,7 +558,7 @@ baseurl=http://mindoc.example.com
 处理方式：
 
 ```bash
-netstat -tunlp | grep 8181
+netstat -tunlp | grep 8182
 ```
 
 或修改：

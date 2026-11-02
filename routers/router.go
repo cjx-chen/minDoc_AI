@@ -270,6 +270,16 @@ func init() {
 	web.Router("/api/ai/code-wiki/repos/add", &controllers.AiController{}, "post:AddCodeWikiRepo")
 	web.Router("/openapi/markdown/import", &controllers.OpenAPIController{}, "post:ImportMarkdown")
 
+	web.Router("/links", &controllers.LinkController{}, "get:LinkPage")
+	web.Router("/api/links/preview", &controllers.LinkController{}, "post:Preview")
+	web.Router("/api/links/add", &controllers.LinkController{}, "post:Add")
+	web.Router("/api/links/edit", &controllers.LinkController{}, "post:Edit")
+	web.Router("/api/links/detail", &controllers.LinkController{}, "get:Detail")
+	web.Router("/api/links/pin", &controllers.LinkController{}, "post:Pin")
+	web.Router("/api/links/recapture", &controllers.LinkController{}, "post:Recapture")
+	web.Router("/api/links/lists", &controllers.LinkController{}, "get:Lists")
+	web.Router("/api/links/delete", &controllers.LinkController{}, "post:Delete")
+
 	web.Router("/tag/:key", &controllers.LabelController{}, "get:Index")
 	web.Router("/tags", &controllers.LabelController{}, "get:List")
 

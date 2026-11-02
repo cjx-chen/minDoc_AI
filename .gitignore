@@ -34,4 +34,11 @@ database/mindoc.db
 /runtime
 /uploads/*.*
 !/uploads/.gitkeep
+# 运行期上传目录（按年月归档，如 uploads/202610/）
+/uploads/20*/
 calibre-*.txz
+# 本地构建产物（mindoc_ai 可执行文件及备份）
+/mindoc_ai
+/mindoc_ai.old.bak
+# QA 过程产物（截图与报告，仅本地保留）
+/qa-artifacts/

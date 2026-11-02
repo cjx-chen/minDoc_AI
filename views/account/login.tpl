@@ -108,6 +108,8 @@
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/three/three.min.js" "version"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/login-3d.js" "version"}}" type="text/javascript"></script>
 {{if .HTTPLoginPasswordEncrypt}}
 <script src="{{cdnjs "/static/js/crypto-js.min.js"}}" type="text/javascript"></script>
 {{end}}

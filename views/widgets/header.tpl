@@ -18,6 +18,9 @@
                     <li {{if eq .ControllerName "AiController"}}class="active"{{end}}>
                         <a href="{{urlfor "AiController.ChatPage"}}" title="AI问答">AI问答</a>
                     </li>
+                    <li {{if eq .ControllerName "LinkController"}}class="active"{{end}}>
+                        <a href="{{urlfor "LinkController.LinkPage"}}" title="网页收集">网页收集</a>
+                    </li>
                 </ul>
                 <div class="searchbar pull-left visible-lg-inline-block visible-md-inline-block">
                     <form class="form-inline" action="{{urlfor "SearchController.IndexV2"}}" method="get">
@@ -42,6 +45,9 @@
                             </li>
                             <li>
                                 <a href="{{urlfor "BookController.Index"}}" title={{i18n .Lang "common.my_project"}}><i class="fa fa-book" aria-hidden="true"></i> {{i18n .Lang "common.my_project"}}</a>
+                            </li>
+                            <li>
+                                <a href="{{urlfor "LinkController.LinkPage"}}" title="网页收集"><i class="fa fa-link" aria-hidden="true"></i> 网页收集</a>
                             </li>
                             <li>
                                 <a href="{{urlfor "BlogController.ManageList"}}" title={{i18n .Lang "common.my_blog"}}><i class="fa fa-file" aria-hidden="true"></i> {{i18n .Lang "common.my_blog"}}</a>
@@ -96,6 +102,7 @@
                 </li>
                 {{else}}
                 <li><a href="{{urlfor "AiController.ChatPage"}}" title="AI问答">AI问答</a></li>
+                <li><a href="{{urlfor "LinkController.LinkPage"}}" title="网页收集">网页收集</a></li>
                 <li><a href="{{urlfor "AccountController.Login"}}" title={{i18n .Lang "common.login"}}>{{i18n .Lang "common.login"}}</a></li>
                 {{end}}
             </ul>

@@ -142,6 +142,7 @@ func RegisterModel() {
 		new(models.DingTalkAccount),
 		new(models.ContentReverseIndex),
 		new(models.AIKnowledgeChunk),
+		new(models.WebLink),
 	)
 	gob.Register(models.Blog{})
 	gob.Register(models.Document{})
